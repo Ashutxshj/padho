@@ -13,6 +13,17 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite+aiosqlite:///./bookleaf.db"
 
+    @field_validator("DATABASE_URL", mode="before")
+    def assemble_database_url(cls, v: str) -> str:
+        if not v:
+            return "sqlite+aiosqlite:///./bookleaf.db"
+        # Standardize PostgreSQL URLs for asyncpg
+        if v.startswith("postgres://"):
+            v = v.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif v.startswith("postgresql://") and not v.startswith("postgresql+asyncpg://"):
+            v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return v
+
     # CORS
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:3000",

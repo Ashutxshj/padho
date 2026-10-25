@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: bookleaf-backend
+    env: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt && python -m app.seeds.seed_data"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PROJECT_NAME
+        value: "BookLeaf Author Support & Communication Portal"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: DATABASE_URL
+        sync: false
+        placeholder: "postgresql+asyncpg://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT].supabase.co:5432/postgres"
+      - key: BACKEND_CORS_ORIGINS
+        value: "*"
+      - key: AI_PROVIDER
+        value: "gemini"
+      - key: GEMINI_API_KEY
+        sync: false
+        placeholder: "Paste your Google Gemini API Key here"
