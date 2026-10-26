@@ -89,7 +89,7 @@ async def create_ticket(
         id=str(uuid.uuid4()),
         reference_no=generate_reference_no(),
         author_id=current_user.id,
-        book_id=payload.book_id,
+        book_id=payload.book_id if payload.book_id else None,
         subject=payload.subject,
         description=payload.description,
         category="General Inquiry",

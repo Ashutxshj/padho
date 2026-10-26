@@ -1,14 +1,24 @@
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from app.schemas.book import BookOut
 from app.schemas.message import MessageOut
 
 
 class TicketCreate(BaseModel):
     book_id: Optional[str] = None
-    subject: str = Field(min_length=3, max_length=255)
-    description: str = Field(min_length=10, max_length=10000)
+    subject: str = Field(min_length=1, max_length=255)
+    description: str = Field(min_length=1, max_length=10000)
+
+    @field_validator("book_id", mode="before")
+    def sanitize_book_id(cls, v):
+        if not v or str(v).strip() in ("", "null", "none"):
+            return None
+        return str(v).strip()
+
+    @field_validator("subject", "description", mode="before")
+    def sanitize_text(cls, v):
+        return str(v).strip() if v else ""
 
 
 class TicketUpdate(BaseModel):

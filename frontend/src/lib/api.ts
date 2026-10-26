@@ -35,8 +35,16 @@ export async function apiRequest<T>(
       const errorJson = await res.json();
       if (errorJson.detail) {
         errorMessage = typeof errorJson.detail === "string" ? errorJson.detail : JSON.stringify(errorJson.detail);
-      } else if (errorJson.error?.message) {
-        errorMessage = errorJson.error.message;
+      } else if (errorJson.error) {
+        const baseMsg = errorJson.error.message || "Request failed";
+        if (Array.isArray(errorJson.error.details) && errorJson.error.details.length > 0) {
+          const detailStr = errorJson.error.details
+            .map((d: any) => `${d.field ? `${d.field}: ` : ""}${d.issue}`)
+            .join("; ");
+          errorMessage = `${baseMsg}: ${detailStr}`;
+        } else {
+          errorMessage = baseMsg;
+        }
       }
     } catch (_) {}
     throw new Error(errorMessage);
