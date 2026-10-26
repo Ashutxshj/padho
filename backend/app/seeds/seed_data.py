@@ -30,8 +30,10 @@ async def seed_database():
     
     # Locate bookleaf_sample_data.json
     possible_paths = [
+        Path.cwd() / "bookleaf_sample_data.json",
         Path(__file__).resolve().parent.parent.parent.parent / "bookleaf_sample_data.json",
         Path(__file__).resolve().parent.parent.parent / "bookleaf_sample_data.json",
+        Path(__file__).resolve().parent.parent / "bookleaf_sample_data.json",
         Path("bookleaf_sample_data.json"),
         Path("C:/Users/Ashut/Downloads/bookleaf_sample_data.json"),
     ]

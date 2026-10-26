@@ -25,18 +25,22 @@ class Settings(BaseSettings):
         return v
 
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ]
+    BACKEND_CORS_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
 
-    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
-        if isinstance(v, str) and not v.startswith("["):
-            return [i.strip() for i in v.split(",") if i.strip()]
-        elif isinstance(v, list):
-            return v
-        return []
+    @property
+    def cors_origins(self) -> List[str]:
+        val = (self.BACKEND_CORS_ORIGINS or "").strip()
+        if not val or val == "*":
+            return ["*"]
+        if val.startswith("[") and val.endswith("]"):
+            try:
+                import json
+                parsed = json.loads(val)
+                if isinstance(parsed, list):
+                    return [str(x).strip() for x in parsed if str(x).strip()]
+            except Exception:
+                pass
+        return [i.strip() for i in val.split(",") if i.strip()]
 
     # AI Configuration
     AI_PROVIDER: str = "mock"  # "mock", "openai", "anthropic", "gemini"

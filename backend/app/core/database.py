@@ -1,3 +1,4 @@
+import re
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -7,13 +8,26 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import declarative_base
 from app.core.config import settings
 
-# For SQLite, check_same_thread needs to be disabled
+db_url = settings.DATABASE_URL
 engine_kwargs = {}
-if settings.DATABASE_URL.startswith("sqlite"):
+
+if db_url.startswith("sqlite"):
     engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    # PostgreSQL / Supabase configuration
+    engine_kwargs["pool_pre_ping"] = True
+    # Clean sslmode from query parameters if present, as asyncpg handles SSL via connect_args
+    if "sslmode" in db_url:
+        db_url = re.sub(r"[?&]sslmode=[^&]+", "", db_url)
+        if db_url.endswith("?"):
+            db_url = db_url[:-1]
+
+    # Enable SSL for remote cloud databases (e.g., Supabase / AWS / Render)
+    if not any(local in db_url for local in ("localhost", "127.0.0.1", "0.0.0.0")):
+        engine_kwargs["connect_args"] = {"ssl": True}
 
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    db_url,
     echo=False,
     future=True,
     **engine_kwargs
