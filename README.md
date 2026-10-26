@@ -13,10 +13,10 @@ Pre-seeded demonstration accounts are configured out of the box with realistic c
 | Role | Name | Email | Password | Access Scope |
 | :--- | :--- | :--- | :--- | :--- |
 | **Admin** | Operations Staff | `admin@bookleafpub.com` | `Admin123!` | Master Operations Queue, AI Draft Studio, Status & Priority Overrides, Private Staff Notes. |
-| **Author** | Priya Sharma | `priya.sharma@example.com` | `Author123!` | Standard author catalog (*Whispers of the Ganges*, *The Saffron Diaries*), Royalty breakdown, Ticket conversation feed. |
-| **Author** | Ananya Reddy | `ananya.reddy@example.com` | `Author123!` | Pending royalties test (*Echoes of the Deccan*, ₹2,546 pending, payout date null). |
-| **Author** | Kavita Deshmukh | `kavita.deshmukh@example.com` | `Author123!` | Sub-threshold edge case (*Midnight Musings*, ₹850 pending: rolls over to next quarter under ₹1,000 threshold). |
-| **Author** | Vikram Seth | `vikram.seth@example.com` | `Author123!` | Production pipeline edge case (*Midnight in Mysore*, Cover Design stage, null dates and ₹0 royalties). |
+| **Author** | Priya Sharma | `priya.sharma@email.com` | `Author123!` | Standard author catalog (*Whispers of the Ganges*, *The Saffron Diaries*), Royalty breakdown, Ticket conversation feed. |
+| **Author** | Ananya Reddy | `ananya.reddy@email.com` | `Author123!` | Pending royalties test (*Echoes of the Deccan*, ₹2,546 pending, payout date null). |
+| **Author** | Kavita Deshmukh | `kavita.deshmukh@email.com` | `Author123!` | Sub-threshold edge case (*Midnight Musings*, ₹850 pending: rolls over to next quarter under ₹1,000 threshold). |
+| **Author** | Vikram Seth | `vikram.seth@email.com` | `Author123!` | Production pipeline edge case (*Midnight in Mysore*, Cover Design stage, null dates and ₹0 royalties). |
 
 *(All authors `AUTH001` through `AUTH010` from `bookleaf_sample_data.json` are seeded with password `Author123!`)*
 

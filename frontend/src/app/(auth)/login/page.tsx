@@ -128,12 +128,12 @@ export default function LoginPage() {
 
               <button
                 type="button"
-                onClick={() => handleQuickLogin("ananya.reddy@example.com", "Author123!")}
+                onClick={() => handleQuickLogin("ananya.reddy@email.com", "Author123!")}
                 className="w-full flex items-center justify-between text-left p-2.5 rounded-sm border border-stone-200 hover:bg-stone-50 transition-colors text-xs"
               >
                 <div>
                   <div className="font-semibold text-stone-900">Ananya Reddy (₹2,546 Pending)</div>
-                  <div className="text-stone-500">ananya.reddy@example.com</div>
+                  <div className="text-stone-500">ananya.reddy@email.com</div>
                 </div>
                 <span className="px-2 py-0.5 rounded-sm bg-stone-100 text-stone-800 font-semibold text-[10px] uppercase tracking-wider border border-stone-200">
                   Author
@@ -142,12 +142,12 @@ export default function LoginPage() {
 
               <button
                 type="button"
-                onClick={() => handleQuickLogin("kavita.deshmukh@example.com", "Author123!")}
+                onClick={() => handleQuickLogin("kavita.deshmukh@email.com", "Author123!")}
                 className="w-full flex items-center justify-between text-left p-2.5 rounded-sm border border-stone-200 hover:bg-stone-50 transition-colors text-xs"
               >
                 <div>
                   <div className="font-semibold text-stone-900">Kavita Deshmukh (₹850 Rollover)</div>
-                  <div className="text-stone-500">kavita.deshmukh@example.com</div>
+                  <div className="text-stone-500">kavita.deshmukh@email.com</div>
                 </div>
                 <span className="px-2 py-0.5 rounded-sm bg-stone-100 text-stone-800 font-semibold text-[10px] uppercase tracking-wider border border-stone-200">
                   Author
