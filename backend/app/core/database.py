@@ -1,4 +1,5 @@
 import re
+import ssl
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -26,7 +27,10 @@ else:
 
     # Enable SSL for remote cloud databases (e.g., Supabase / AWS / Render)
     if not any(local in db_url for local in ("localhost", "127.0.0.1", "0.0.0.0")):
-        connect_args["ssl"] = True
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+        connect_args["ssl"] = ctx
 
     # Supabase Connection Pooler (port 6543 or 5432) requires statement_cache_size=0
     # to prevent prepared statement conflicts in transaction pooling mode
