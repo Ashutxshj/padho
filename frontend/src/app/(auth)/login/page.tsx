@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { BookOpen, Shield, User, Lock, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -26,7 +25,7 @@ export default function LoginPage() {
         router.push("/admin/queue");
       }
     } catch (err: any) {
-      setError(err.message || "Failed to log in");
+      setError(err.message || "Authentication failed. Please verify credentials.");
     } finally {
       setLoading(false);
     }
@@ -39,99 +38,122 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="max-w-md mx-auto my-12 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-      <div className="bg-gradient-to-r from-amber-600 to-amber-700 p-8 text-white text-center">
-        <div className="w-14 h-14 bg-white/20 rounded-2xl mx-auto flex items-center justify-center mb-3 backdrop-blur-sm">
-          <BookOpen className="w-8 h-8 text-white" />
-        </div>
-        <h1 className="text-2xl font-bold">BookLeaf Publishing</h1>
-        <p className="text-amber-100 text-sm mt-1">Author Support & Operations Portal</p>
-      </div>
-
-      <div className="p-8">
-        {error && (
-          <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-center">
-            <span>{error}</span>
+    <div className="max-w-md mx-auto my-12">
+      <div className="card-surface rounded-md border border-stone-200 overflow-hidden">
+        {/* Header */}
+        <div className="p-8 sm:p-10 border-b border-stone-200 bg-stone-50">
+          <div className="flex items-center space-x-3 mb-4">
+            <div className="w-8 h-8 rounded-sm bg-stone-900 flex items-center justify-center text-white font-serif font-bold text-sm">
+              B
+            </div>
+            <span className="text-xs uppercase tracking-widest font-semibold text-stone-500">
+              BookLeaf Publishing
+            </span>
           </div>
-        )}
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900">
+            Sign In to Portal
+          </h1>
+          <p className="text-sm text-stone-600 mt-2 leading-relaxed">
+            Access your author catalog, quarterly royalty statements, or operations queue.
+          </p>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-              Email Address
-            </label>
-            <div className="relative">
-              <User className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" />
+        {/* Form Body */}
+        <div className="p-8 sm:p-10 space-y-6">
+          {error && (
+            <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-sm">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700 mb-2">
+                Email Address
+              </label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="author@email.com"
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                placeholder="name@example.com"
+                className="w-full px-3.5 py-2.5 border border-stone-300 rounded-sm text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-colors bg-white"
               />
             </div>
-          </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider mb-1">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" />
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-stone-700">
+                  Password
+                </label>
+              </div>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                className="w-full px-3.5 py-2.5 border border-stone-300 rounded-sm text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-colors bg-white"
               />
             </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full mt-2 py-2.5 px-4 bg-amber-600 hover:bg-amber-700 text-white font-medium rounded-lg text-sm shadow-md transition-colors flex items-center justify-center space-x-2 disabled:opacity-50"
-          >
-            {loading ? (
-              <span>Signing in...</span>
-            ) : (
-              <>
-                <span>Sign In to Account</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
-        </form>
-
-        <div className="mt-8 pt-6 border-t border-gray-100">
-          <p className="text-xs text-gray-500 font-medium mb-3 text-center uppercase tracking-wider">
-            Quick Fill Demo Accounts
-          </p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleQuickLogin("priya.sharma@email.com", "Author123!")}
-              className="p-2.5 text-left border border-amber-200 bg-amber-50/50 hover:bg-amber-100/50 rounded-lg text-xs transition-colors"
-            >
-              <div className="font-semibold text-amber-900 flex items-center">
-                <User className="w-3.5 h-3.5 mr-1 text-amber-700" /> Author Demo
-              </div>
-              <div className="text-gray-600 text-[11px] truncate mt-0.5">Priya Sharma</div>
-            </button>
 
             <button
-              type="button"
-              onClick={() => handleQuickLogin("admin@bookleafpub.com", "Admin123!")}
-              className="p-2.5 text-left border border-purple-200 bg-purple-50/50 hover:bg-purple-100/50 rounded-lg text-xs transition-colors"
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 px-4 bg-stone-900 hover:bg-stone-800 text-white font-medium text-sm rounded-sm transition-colors shadow-sm disabled:opacity-50"
             >
-              <div className="font-semibold text-purple-900 flex items-center">
-                <Shield className="w-3.5 h-3.5 mr-1 text-purple-700" /> Admin Demo
-              </div>
-              <div className="text-gray-600 text-[11px] truncate mt-0.5">Operations Desk</div>
+              {loading ? "Authenticating..." : "Sign In"}
             </button>
+          </form>
+
+          {/* Test Account Selector */}
+          <div className="border-t border-stone-200 pt-6">
+            <p className="text-xs font-semibold uppercase tracking-wider text-stone-500 mb-3">
+              Pre-Seeded Accounts
+            </p>
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={() => handleQuickLogin("admin@bookleafpub.com", "Admin123!")}
+                className="w-full flex items-center justify-between text-left p-2.5 rounded-sm border border-stone-200 hover:bg-stone-50 transition-colors text-xs"
+              >
+                <div>
+                  <div className="font-semibold text-stone-900">Operations Admin</div>
+                  <div className="text-stone-500">admin@bookleafpub.com</div>
+                </div>
+                <span className="px-2 py-0.5 rounded-sm bg-stone-100 text-stone-800 font-semibold text-[10px] uppercase tracking-wider border border-stone-200">
+                  Staff
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickLogin("ananya.reddy@example.com", "Author123!")}
+                className="w-full flex items-center justify-between text-left p-2.5 rounded-sm border border-stone-200 hover:bg-stone-50 transition-colors text-xs"
+              >
+                <div>
+                  <div className="font-semibold text-stone-900">Ananya Reddy (₹2,546 Pending)</div>
+                  <div className="text-stone-500">ananya.reddy@example.com</div>
+                </div>
+                <span className="px-2 py-0.5 rounded-sm bg-stone-100 text-stone-800 font-semibold text-[10px] uppercase tracking-wider border border-stone-200">
+                  Author
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleQuickLogin("kavita.deshmukh@example.com", "Author123!")}
+                className="w-full flex items-center justify-between text-left p-2.5 rounded-sm border border-stone-200 hover:bg-stone-50 transition-colors text-xs"
+              >
+                <div>
+                  <div className="font-semibold text-stone-900">Kavita Deshmukh (₹850 Rollover)</div>
+                  <div className="text-stone-500">kavita.deshmukh@example.com</div>
+                </div>
+                <span className="px-2 py-0.5 rounded-sm bg-stone-100 text-stone-800 font-semibold text-[10px] uppercase tracking-wider border border-stone-200">
+                  Author
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

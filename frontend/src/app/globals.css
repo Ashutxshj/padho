@@ -3,13 +3,30 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 15, 23, 42;
-  --background-rgb: 248, 250, 252;
+  --foreground-rgb: 28, 25, 23;
+  --background-rgb: 250, 249, 246;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: rgb(var(--background-rgb));
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: rgb(var(--background-rgb));
   min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Light comes from the sky: subtle inset on interactive fields */
+input, select, textarea {
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* Flat, deliberate card borders and sky-light shadows */
+.card-surface {
+  background-color: #ffffff;
+  border: 1px solid #e7e5e4;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.button-raised {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }

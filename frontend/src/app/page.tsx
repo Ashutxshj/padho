@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
+import { Skeleton } from "@/components/Skeleton";
 
 export default function Home() {
   const { user, isLoading } = useAuth();
@@ -21,8 +22,10 @@ export default function Home() {
   }, [user, isLoading, router]);
 
   return (
-    <div className="flex h-96 items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+    <div className="max-w-md mx-auto py-24 space-y-4">
+      <Skeleton className="h-8 w-2/3 mx-auto" />
+      <Skeleton className="h-4 w-1/2 mx-auto" />
+      <Skeleton className="h-48 w-full mt-6" />
     </div>
   );
 }

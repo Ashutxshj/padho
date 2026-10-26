@@ -4,7 +4,6 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { BookOpen, Ticket, PlusCircle, LogOut, ShieldCheck, User as UserIcon } from "lucide-react";
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -15,65 +14,65 @@ export function Navbar() {
   const isAuthor = user.role === "author";
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center space-x-8">
-            <Link href={isAuthor ? "/author/books" : "/admin/queue"} className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-600 flex items-center justify-center text-white font-bold shadow-sm">
-                BL
+    <header className="bg-white border-b border-stone-200 sticky top-0 z-40">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="flex justify-between items-center h-18 py-3">
+          <div className="flex items-center space-x-10">
+            <Link href={isAuthor ? "/author/books" : "/admin/queue"} className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-sm bg-stone-900 flex items-center justify-center text-white font-serif font-bold text-base shadow-sm">
+                B
               </div>
-              <div>
-                <span className="font-bold text-gray-900 text-lg leading-tight block">BookLeaf</span>
-                <span className="text-xs text-gray-500 block leading-tight">Author Portal & Support</span>
+              <div className="flex flex-col">
+                <span className="font-bold text-stone-900 text-base tracking-tight leading-none">
+                  BookLeaf Publishing
+                </span>
+                <span className="text-[11px] text-stone-500 uppercase tracking-widest mt-1">
+                  Author Support
+                </span>
               </div>
             </Link>
 
-            <nav className="hidden md:flex space-x-2">
+            <nav className="hidden md:flex items-center space-x-1">
               {isAuthor ? (
                 <>
                   <Link
                     href="/author/books"
-                    className={`inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-sm text-sm font-medium transition-colors ${
                       pathname === "/author/books"
-                        ? "bg-amber-50 text-amber-900 font-semibold"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        ? "bg-stone-100 text-stone-900 font-semibold"
+                        : "text-stone-600 hover:text-stone-900 hover:bg-stone-50"
                     }`}
                   >
-                    <BookOpen className="w-4 h-4 mr-1.5 text-amber-600" />
-                    My Books
+                    Catalog & Royalties
                   </Link>
                   <Link
                     href="/author/tickets"
-                    className={`inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-sm text-sm font-medium transition-colors ${
                       pathname.startsWith("/author/tickets") && pathname !== "/author/tickets/new"
-                        ? "bg-amber-50 text-amber-900 font-semibold"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        ? "bg-stone-100 text-stone-900 font-semibold"
+                        : "text-stone-600 hover:text-stone-900 hover:bg-stone-50"
                     }`}
                   >
-                    <Ticket className="w-4 h-4 mr-1.5 text-amber-600" />
-                    My Tickets
+                    Support Inquiries
                   </Link>
                   <Link
                     href="/author/tickets/new"
-                    className="inline-flex items-center px-3 py-2 rounded-md text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 shadow-sm ml-2"
+                    className="ml-3 px-3.5 py-1.5 rounded-sm text-sm font-medium text-white bg-stone-900 hover:bg-stone-800 transition-colors shadow-sm"
                   >
-                    <PlusCircle className="w-4 h-4 mr-1.5" />
-                    Submit Query
+                    Submit Inquiry
                   </Link>
                 </>
               ) : (
                 <>
                   <Link
                     href="/admin/queue"
-                    className={`inline-flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`px-3 py-2 rounded-sm text-sm font-medium transition-colors ${
                       pathname.startsWith("/admin/queue") || pathname.startsWith("/admin/tickets")
-                        ? "bg-amber-50 text-amber-900 font-semibold"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                        ? "bg-stone-100 text-stone-900 font-semibold"
+                        : "text-stone-600 hover:text-stone-900 hover:bg-stone-50"
                     }`}
                   >
-                    <ShieldCheck className="w-4 h-4 mr-1.5 text-amber-600" />
-                    Operations Queue
+                    Operations Triage Queue
                   </Link>
                 </>
               )}
@@ -81,22 +80,19 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-sm text-gray-700 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
-              <UserIcon className="w-4 h-4 text-gray-500" />
-              <span className="font-medium">{user.name}</span>
-              <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
-                isAuthor ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"
-              }`}>
-                {user.role.toUpperCase()}
+            <div className="hidden sm:flex items-center space-x-2 text-xs text-stone-700 bg-stone-50 px-3 py-1.5 rounded-sm border border-stone-200">
+              <span className="font-semibold text-stone-900">{user.name}</span>
+              <span className="text-stone-300">/</span>
+              <span className="uppercase tracking-wider font-semibold text-stone-500">
+                {user.role}
               </span>
             </div>
 
             <button
               onClick={logout}
-              title="Sign Out"
-              className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+              className="text-xs font-semibold uppercase tracking-wider text-stone-500 hover:text-stone-900 hover:bg-stone-100 px-3 py-1.5 rounded-sm transition-colors border border-transparent hover:border-stone-200"
             >
-              <LogOut className="w-5 h-5" />
+              Sign Out
             </button>
           </div>
         </div>

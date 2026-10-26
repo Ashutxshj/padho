@@ -1,26 +1,26 @@
 import React from "react";
 
 export function PriorityBadge({ priority }: { priority: string }) {
-  let color = "bg-gray-100 text-gray-700 border-gray-200";
+  let style = "bg-stone-100 text-stone-700 border-stone-200";
 
   switch (priority) {
     case "Critical":
-      color = "bg-red-50 text-red-700 border-red-300 font-semibold";
+      style = "bg-rose-50 text-rose-900 border-rose-300 font-bold uppercase tracking-wider text-[10px]";
       break;
     case "High":
-      color = "bg-orange-50 text-orange-700 border-orange-200";
+      style = "bg-amber-50 text-amber-900 border-amber-300 font-semibold";
       break;
     case "Medium":
-      color = "bg-yellow-50 text-yellow-800 border-yellow-200";
+      style = "bg-stone-100 text-stone-800 border-stone-300";
       break;
     case "Low":
-      color = "bg-slate-50 text-slate-600 border-slate-200";
+      style = "bg-stone-50 text-stone-500 border-stone-200";
       break;
   }
 
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${color}`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-sm text-xs border ${style}`}
     >
       {priority}
     </span>

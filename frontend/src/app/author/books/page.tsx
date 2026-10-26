@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { apiRequest } from "@/lib/api";
 import { Book, RoyaltySummary, PaginatedResponse } from "@/types";
-import { BookOpen, DollarSign, CheckCircle2, AlertCircle, PlusCircle, ArrowUpRight } from "lucide-react";
+import { Skeleton, CardSkeleton, TableSkeleton } from "@/components/Skeleton";
 
 export default function AuthorBooksPage() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -31,164 +31,223 @@ export default function AuthorBooksPage() {
 
   if (loading) {
     return (
-      <div className="flex h-64 items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
+      <div className="space-y-8">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <CardSkeleton />
+          </div>
+          <CardSkeleton />
+        </div>
+        <div className="card-surface rounded-md">
+          <TableSkeleton rows={4} />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-4 border-b border-stone-200 pb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">My Books & Royalties</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Track your published catalog, quarterly royalties, and distribution channels.
+          <h1 className="text-2xl font-bold tracking-tight text-stone-900">
+            Author Catalog & Royalties
+          </h1>
+          <p className="text-sm text-stone-500 mt-1 leading-relaxed">
+            Manage your published titles, track quarterly earnings, and review platform distribution channels.
           </p>
         </div>
-        <Link
-          href="/author/tickets/new"
-          className="inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 transition-colors"
-        >
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Raise Support Query
-        </Link>
+        <div>
+          <Link
+            href="/author/tickets/new"
+            className="inline-flex items-center px-4 py-2 border border-stone-900 rounded-sm text-sm font-medium text-white bg-stone-900 hover:bg-stone-800 transition-colors shadow-sm"
+          >
+            Submit Inquiry
+          </Link>
+        </div>
       </div>
 
-      {/* Financial Summary Cards */}
+      {/* Financial Overview (Asymmetric 2-column layout, not a generic 3-box row) */}
       {summary && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Lifetime Earned</span>
-              <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
-                <DollarSign className="w-5 h-5" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Financial Balance Sheet */}
+          <div className="lg:col-span-2 card-surface p-6 sm:p-8 rounded-md">
+            <div className="text-xs uppercase tracking-widest font-semibold text-stone-500 mb-4">
+              Royalty Balance Sheet
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2 pb-6 border-b border-stone-100">
+              <div>
+                <span className="text-xs text-stone-500 block">Total Royalty Earned</span>
+                <span className="text-2xl font-bold text-stone-900 mt-1 block">
+                  ₹{summary.total_earned.toLocaleString("en-IN")}
+                </span>
+                <span className="text-[11px] text-stone-400 mt-1 block">
+                  80% net profit share
+                </span>
+              </div>
+
+              <div>
+                <span className="text-xs text-stone-500 block">Disbursed to Bank</span>
+                <span className="text-2xl font-bold text-stone-900 mt-1 block">
+                  ₹{summary.total_paid.toLocaleString("en-IN")}
+                </span>
+                <span className="text-[11px] text-stone-400 mt-1 block">
+                  Settled transfers
+                </span>
+              </div>
+
+              <div>
+                <span className="text-xs text-stone-500 block">Current Balance Pending</span>
+                <span className="text-2xl font-bold text-stone-900 mt-1 block">
+                  ₹{summary.total_pending.toLocaleString("en-IN")}
+                </span>
+                <span className="text-[11px] text-stone-400 mt-1 block">
+                  Outstanding balance
+                </span>
               </div>
             </div>
-            <div className="text-2xl font-extrabold text-gray-900 mt-3">
-              ₹{summary.total_earned.toLocaleString("en-IN")}
-            </div>
-            <div className="text-xs text-gray-500 mt-1">Based on BookLeaf 80/20 net profit split</div>
+
+            <p className="text-xs text-stone-500 mt-4 leading-relaxed">
+              Net Profit Formula: MRP minus the sum of printing cost, platform commission (Amazon/Flipkart), and shipping charges.
+              Disbursements occur within 45 days after quarter close.
+            </p>
           </div>
 
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Royalties Disbursed</span>
-              <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-                <CheckCircle2 className="w-5 h-5" />
+          {/* Disbursement Status & Action Card */}
+          <div className="card-surface p-6 sm:p-8 rounded-md flex flex-col justify-between">
+            <div>
+              <div className="text-xs uppercase tracking-widest font-semibold text-stone-500 mb-3">
+                Disbursement Status
               </div>
-            </div>
-            <div className="text-2xl font-extrabold text-gray-900 mt-3">
-              ₹{summary.total_paid.toLocaleString("en-IN")}
-            </div>
-            <div className="text-xs text-emerald-700 font-medium mt-1">Direct bank transfers confirmed</div>
-          </div>
 
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Pending Payout Balance</span>
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                summary.eligible_for_payout ? "bg-amber-50 text-amber-600" : "bg-gray-100 text-gray-500"
-              }`}>
-                <AlertCircle className="w-5 h-5" />
+              <div className="my-4">
+                {summary.eligible_for_payout ? (
+                  <div className="p-3 bg-amber-50/80 border border-amber-300 rounded-sm text-xs text-amber-900">
+                    <span className="font-semibold block">Eligible for Next Quarter Run</span>
+                    <span className="mt-1 block text-amber-800">
+                      Balance exceeds the ₹1,000 threshold and is queued for transfer to your registered account.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="p-3 bg-stone-50 border border-stone-200 rounded-sm text-xs text-stone-700">
+                    <span className="font-semibold block">Below ₹1,000 Threshold</span>
+                    <span className="mt-1 block text-stone-500">
+                      Earnings below ₹1,000 automatically roll over to the subsequent quarter.
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="text-2xl font-extrabold text-gray-900 mt-3">
-              ₹{summary.total_pending.toLocaleString("en-IN")}
-            </div>
-            <div className="flex items-center mt-1 text-xs">
-              {summary.eligible_for_payout ? (
-                <span className="text-amber-700 font-semibold flex items-center">
-                  &bull; Meets ₹1,000 threshold (Scheduled for quarterly payout)
-                </span>
-              ) : (
-                <span className="text-gray-500">
-                  &bull; Under ₹1,000 threshold (Rolls over to next quarter)
-                </span>
-              )}
+
+            <div className="border-t border-stone-100 pt-4 mt-4">
+              <Link
+                href="/author/tickets/new"
+                className="text-xs font-semibold text-stone-800 hover:text-stone-950 underline underline-offset-4"
+              >
+                Inquire about royalty calculations &rarr;
+              </Link>
             </div>
           </div>
         </div>
       )}
 
-      {/* Books Table / Cards */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-gray-200">
-          <h2 className="text-lg font-bold text-gray-900">Published & In-Production Titles ({books.length})</h2>
+      {/* Catalog List */}
+      <div className="card-surface rounded-md overflow-hidden">
+        <div className="p-6 border-b border-stone-200 bg-stone-50 flex items-center justify-between">
+          <h2 className="text-base font-bold text-stone-900">
+            Registered Catalog Titles ({books.length})
+          </h2>
+          <span className="text-xs text-stone-500">
+            Official BookLeaf Publisher Imprint
+          </span>
         </div>
 
-        <div className="divide-y divide-gray-200">
+        <div className="divide-y divide-stone-200">
           {books.map((book) => {
             const isProduction = book.status.includes("Production");
 
             return (
-              <div key={book.id} className="p-6 hover:bg-slate-50/50 transition-colors">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                  <div className="space-y-1.5 max-w-xl">
+              <div key={book.id} className="p-6 sm:p-8 hover:bg-stone-50/40 transition-colors">
+                <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                  <div className="space-y-3 max-w-xl">
                     <div className="flex items-center space-x-2">
-                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
+                      <span className="text-xs px-2 py-0.5 rounded-sm bg-stone-100 text-stone-700 border border-stone-200 font-medium">
                         {book.genre}
                       </span>
-                      <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
+                      <span className={`text-xs px-2 py-0.5 rounded-sm border ${
                         isProduction
-                          ? "bg-purple-50 text-purple-700 border-purple-200"
-                          : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          ? "bg-amber-50 text-amber-900 border-amber-300 font-semibold"
+                          : "bg-stone-100 text-stone-800 border-stone-300 font-medium"
                       }`}>
                         {book.status}
                       </span>
                     </div>
 
-                    <h3 className="text-lg font-bold text-gray-900">{book.title}</h3>
+                    <h3 className="text-lg font-bold text-stone-900 tracking-tight">
+                      {book.title}
+                    </h3>
 
-                    <div className="text-xs text-gray-500 flex flex-wrap gap-x-4 gap-y-1">
+                    <div className="text-xs text-stone-500 flex flex-wrap gap-x-6 gap-y-1.5 pt-1">
                       <span><strong>ISBN:</strong> {book.isbn || "Pending Assignment"}</span>
                       {book.publication_date && <span><strong>Published:</strong> {book.publication_date}</span>}
-                      {book.print_partner && <span><strong>Print Partner:</strong> {book.print_partner}</span>}
+                      {book.print_partner && <span><strong>Print Facility:</strong> {book.print_partner}</span>}
                     </div>
 
                     {book.available_on && book.available_on.length > 0 && (
-                      <div className="flex items-center space-x-1.5 pt-1 text-xs text-gray-600">
-                        <span className="font-medium text-gray-500">Available on:</span>
-                        {book.available_on.map((ch) => (
-                          <span key={ch} className="px-2 py-0.5 bg-gray-100 rounded text-gray-700 text-[11px]">
-                            {ch}
-                          </span>
-                        ))}
+                      <div className="pt-2">
+                        <span className="text-xs text-stone-500 block mb-1.5 font-medium">
+                          Active Distribution Channels:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {book.available_on.map((channel, i) => (
+                            <span
+                              key={i}
+                              className="text-[11px] px-2 py-0.5 rounded-sm bg-white border border-stone-200 text-stone-600"
+                            >
+                              {channel}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
 
-                  {/* Financial Breakdown */}
-                  <div className="flex items-center gap-6 self-start lg:self-center">
-                    {!isProduction ? (
-                      <div className="grid grid-cols-3 gap-4 text-right">
-                        <div>
-                          <div className="text-xs text-gray-500">Copies Sold</div>
-                          <div className="text-sm font-bold text-gray-900">{book.total_copies_sold.toLocaleString()}</div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500">Earned</div>
-                          <div className="text-sm font-bold text-gray-900">₹{book.total_royalty_earned.toLocaleString()}</div>
-                        </div>
-                        <div>
-                          <div className="text-xs text-gray-500">Pending</div>
-                          <div className="text-sm font-bold text-amber-600">₹{book.royalty_pending.toLocaleString()}</div>
-                        </div>
+                  {/* Financial Column per book */}
+                  <div className="lg:text-right border-t lg:border-t-0 pt-4 lg:pt-0 border-stone-100">
+                    {isProduction ? (
+                      <div className="text-xs text-stone-500 max-w-xs lg:ml-auto">
+                        <span className="font-semibold block text-stone-800">In Production Pipeline</span>
+                        <span>Pricing and sales reports activate upon final live publication.</span>
                       </div>
                     ) : (
-                      <div className="text-xs text-purple-700 bg-purple-50 px-3 py-2 rounded-lg border border-purple-100 font-medium">
-                        Milestone in progress: No sales or royalty calculations active.
+                      <div className="space-y-2">
+                        <div className="text-xs text-stone-500">
+                          MRP: <strong className="text-stone-900">₹{book.mrp}</strong> &bull; Per-copy royalty: ₹{book.author_royalty_per_copy}
+                        </div>
+                        <div className="text-sm text-stone-600">
+                          Copies Sold: <strong className="text-stone-900">{book.total_copies_sold}</strong>
+                        </div>
+                        <div className="text-base font-bold text-stone-900 pt-1">
+                          Earned: ₹{(book.total_royalty_earned || 0).toLocaleString("en-IN")}
+                        </div>
+                        <div className="text-xs text-stone-500">
+                          Paid: ₹{(book.royalty_paid || 0).toLocaleString("en-IN")} | Pending: <span className="font-semibold text-stone-900">₹{(book.royalty_pending || 0).toLocaleString("en-IN")}</span>
+                        </div>
                       </div>
                     )}
 
-                    <Link
-                      href={`/author/tickets/new?book_id=${book.id}`}
-                      className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors whitespace-nowrap"
-                    >
-                      Raise Ticket
-                      <ArrowUpRight className="w-3.5 h-3.5 ml-1" />
-                    </Link>
+                    <div className="mt-4">
+                      <Link
+                        href={`/author/tickets/new?book_id=${book.id}`}
+                        className="text-xs font-semibold text-stone-700 hover:text-stone-900 underline underline-offset-4"
+                      >
+                        Query about this book &rarr;
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
