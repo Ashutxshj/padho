@@ -195,14 +195,37 @@ gantt
   - Multi-stage `Dockerfile` for backend and frontend.
   - `docker-compose.yml` linking Postgres/SQLite, FastAPI backend, and Next.js frontend.
   - *Verification:* Configured and tested.
-- [ ] **Task 9.2: Cloud Deployment & Live Demo Verification**
-  - Deploy backend and frontend to accessible host (Render / Railway / Vercel).
-  - Pre-seed database with sample data.
-  - Verify live demo URLs and test accounts.
+- [x] **Task 9.2: Cloud Deployment & Live Demo Verification**
+  - Deploy backend on Render (`render.yaml` blueprint with Uvicorn ASGI server).
+  - Deploy PostgreSQL on Supabase using connection pooler (`aws-0-[region].pooler.supabase.com:5432`) with custom `ssl.SSLContext` and `statement_cache_size=0`.
+  - Deploy frontend on Vercel with `NEXT_PUBLIC_API_URL` environment variable.
+  - Pre-seed database with 10 authors, 18 books, and admin account.
+  - *Verification:* Live authentication test confirmed (`LOGIN STATUS: 200`, `TOKEN ISSUED: True`), tables populated, and Pytest 16/16 green.
 - [x] **Task 9.3: Comprehensive README & 1-Page Architectural Write-Up**
   - Authored setup instructions, environment variable specifications, architecture decisions, and AI cost analysis.
   - Authored 1-page executive summary write-up.
   - *Verification:* `README.md` authored.
+
+---
+
+### Phase 10: Editorial UI Refinement & Anti-AI Standard
+- [x] **Task 10.1: Typography & Palette Humanization**
+  - Integrate `Source_Sans_3` from Google Fonts to replace default AI fonts (Inter, Geist).
+  - Adopt warm tactile paper background (`#fbfbf9`) and eliminate loud multi-stop gradients.
+  - Implement physical sky-light model: top-inset shadows on inputs, bottom elevation on raised cards.
+  - *Verification:* Verified across all 11 routes.
+- [x] **Task 10.2: Anti-AI Checklist Audit**
+  - Purged all sparkle icons (✨) from AI response studio; replaced with "Response Draft Assistant".
+  - Purged all emojis from headings, buttons, and status labels.
+  - Purged checkmark bullets (`✓`) and bento box card rows.
+  - Replaced author financial summary with asymmetric 2-column balance sheet.
+  - Restructured copy to eliminate em dashes ("—") across the entire interface.
+  - *Verification:* Grep audit confirms zero occurrences of banned decorative tokens.
+- [x] **Task 10.3: Product Completeness & Skeleton Loaders**
+  - Authored dedicated Terms of Service page at `/terms`.
+  - Authored dedicated Privacy Policy page at `/privacy`.
+  - Replaced all raw spinners with structured `Skeleton`, `CardSkeleton`, and `TableSkeleton` states to prevent layout reflow.
+  - *Verification:* Next.js build compiles 11/11 static and dynamic pages with 0 errors.
 
 ---
 

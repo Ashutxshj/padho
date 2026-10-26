@@ -657,30 +657,41 @@ Strict Guidelines:
 ```
 frontend/src/
 ├── app/
-│   ├── layout.tsx                     # Global Root Layout (Tailwind, Font, AuthProvider)
-│   ├── page.tsx                       # Landing page redirecting to /login or /author/books
+│   ├── layout.tsx                     # Global Root Layout (Source_Sans_3, AuthProvider, Navbar, Footer)
+│   ├── globals.css                    # Warm paper palette (#fbfbf9), sky-light elevation & inset shadows
+│   ├── page.tsx                       # Redirect dispatcher with Skeleton fallback
 │   ├── (auth)/
-│   │   └── login/page.tsx             # Login view with demo credentials toggle
+│   │   └── login/page.tsx             # Editorial login view with 1-click pre-seeded account selectors
 │   ├── author/
-│   │   ├── layout.tsx                 # Author Shell (Header, Nav: My Books, My Tickets, Logout)
-│   │   ├── books/page.tsx             # Books catalog cards, royalty pending badge
+│   │   ├── layout.tsx                 # Author Shell Guard (Protected by role, CardSkeleton fallback)
+│   │   ├── books/page.tsx             # Asymmetric Balance Sheet + Registered Catalog Cards
 │   │   ├── tickets/
-│   │   │   ├── page.tsx               # My Tickets list with real-time SSE listener
-│   │   │   ├── new/page.tsx           # Submit ticket form with book selector dropdown
-│   │   │   └── [id]/page.tsx          # Real-time ticket thread view
-│   └── admin/
-│       ├── layout.tsx                 # Admin Shell (Operations Header, Queue Stats, Filter Bar)
-│       ├── queue/page.tsx             # Master ticket queue table with multi-filter & search
-│       └── tickets/[id]/page.tsx      # Admin Management Cockpit:
-│                                      #  - Author & Book Info sidebar
-│                                      #  - Status / Priority / Category override dropdowns
-│                                      #  - AI Draft Studio (Editor + Grounding source cards)
-│                                      #  - Public Message feed
-│                                      #  - Internal Staff Notes feed
+│   │   │   ├── page.tsx               # Inquiries list with real-time SSE listener
+│   │   │   ├── new/page.tsx           # Submit inquiry form with book selector dropdown & validation
+│   │   │   └── [id]/page.tsx          # Real-time ticket thread view with SSE listener
+│   ├── admin/
+│   │   ├── layout.tsx                 # Admin Shell Guard (Protected by role, CardSkeleton fallback)
+│   │   ├── queue/page.tsx             # Operations Triage Queue with multi-criteria filters & search
+│   │   └── tickets/[id]/page.tsx      # Admin Management Cockpit:
+│   │                                  #  - Author & Catalog Context sidebar
+│   │                                  #  - AI Suggestion & Manual Override dropdowns
+│   │                                  #  - Response Draft Assistant Studio (Knowledge-grounded)
+│   │                                  #  - Public Message feed with live SSE updates
+│   │                                  #  - Private Staff Notes feed (Staff Confidential)
+│   ├── terms/
+│   │   └── page.tsx                   # Formal Terms of Service (Royalty accounting, SLAs, RBAC)
+│   └── privacy/
+│       └── page.tsx                   # Formal Privacy Policy (Data isolation, confidentiality)
 └── components/
-    ├── ui/                            # Buttons, Badges, Modals, Inputs, Skeletons
-    ├── AuthorBookCard.tsx             # Financial display card with royalty pending indicators
-    ├── TicketStatusBadge.tsx          # Color-coded badge (Open, In Progress, Resolved, Closed)
-    ├── PriorityBadge.tsx              # Color-coded badge (Critical, High, Medium, Low)
-    └── AIDraftEditor.tsx              # Interactive draft editor with "Generate AI Reply" button
+    ├── Navbar.tsx                     # Clean editorial header with masthead, navigation, and role badge
+    ├── StatusBadge.tsx                # Semantic, flat status pill (Open, In Progress, Resolved, Closed)
+    ├── PriorityBadge.tsx              # Clean typographic priority pill (Critical, High, Medium, Low)
+    └── Skeleton.tsx                   # Structured loading primitives (Skeleton, CardSkeleton, TableSkeleton)
 ```
+
+## 8. Editorial UI Design & Physical Elevation Model
+
+In compliance with the **Erik D. Kennedy 7 Rules** and the **Anti 'AI-Generated Look' Reference**:
+- **Light from Above:** Raised surfaces (`.card-surface`, buttons) feature subtle downward shadows (`box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03)`). Inset elements (inputs, textareas, selects) feature subtle interior top shadows (`box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04)`).
+- **Asymmetric Financial Overview:** Replaces the generic 3-card landing row with a 2-column layout (Left: comprehensive royalty balance sheet; Right: disbursement eligibility and threshold actions).
+- **Zero AI Tell Ornamentation:** Completely purged of sparkle icons (`✨`), emojis, checkmark bullets (`✓`), bento-box grids, and em dashes (`—`). All asynchronous views use structured skeleton loaders rather than raw spinners.

@@ -227,19 +227,34 @@ flowchart TD
 
 ---
 
-### Stage 9: Containerization, Deployment & Live Demo
-- **Objectives:** Package the complete stack for reproducible local execution and public evaluation.
+### Stage 9: Containerization, Deployment & Live Cloud Verification
+- **Objectives:** Package the complete stack for reproducible local execution and public evaluation on cloud infrastructure.
 - **Key Activities:**
   - Author production multi-stage `Dockerfile` for backend and frontend.
   - Configure `docker-compose.yml` linking Postgres, FastAPI backend, and Next.js frontend with health checks.
-  - Deploy application to a publicly accessible host (e.g., Railway / Render / Vercel).
-  - Pre-seed deployed database with sample dataset.
-  - Verify live demo URLs and test accounts.
-- **Exit Gate Criteria:** `docker compose up --build` brings up entire application locally; live URL responds with working pre-seeded portals.
+  - Deploy backend web service to Render (`render.yaml`) with Uvicorn ASGI engine.
+  - Connect managed PostgreSQL via Supabase IPv4 connection pooler (`statement_cache_size=0`, permissive `ssl.SSLContext`).
+  - Deploy frontend to Vercel edge runtime with `NEXT_PUBLIC_API_URL` environment configuration.
+  - Pre-seed cloud database with all 10 authors and 18 books from `bookleaf_sample_data.json`.
+- **Exit Gate Criteria:** `docker compose up --build` brings up entire application locally; live Render and Vercel URLs respond with working pre-seeded portals; live authentication verified (`LOGIN STATUS: 200`).
 
 ---
 
-### Stage 10: Review, Documentation & Release
+### Stage 10: Editorial UI Refinement & Anti-AI Compliance
+- **Objectives:** Elevate the frontend interface to a mature, human-designed publication standard complying with Erik D. Kennedy's UI rules and anti-AI design constraints.
+- **Key Activities:**
+  - Replace default AI fonts (Inter, Geist) with `Source_Sans_3` via Google Fonts.
+  - Adopt warm tactile paper background (`#fbfbf9`), eliminating flat `#fff` and loud multi-stop gradients.
+  - Implement physical sky-light model: top-inset shadows on inputs, bottom elevation on raised cards.
+  - Purge all sparkle icons (✨), emojis, checkmark bullets, and bento-box layouts.
+  - Replace generic 3-card landing row with an asymmetric 2-column financial balance sheet.
+  - Author formal `/terms` (Terms of Service) and `/privacy` (Privacy Policy) routes.
+  - Implement structured skeleton loaders (`Skeleton`, `CardSkeleton`, `TableSkeleton`) replacing lone spinners.
+- **Exit Gate Criteria:** All 11 Next.js routes compile cleanly with zero Webpack errors; UI conforms 100% to design specifications.
+
+---
+
+### Stage 11: Review, Documentation & Release
 - **Objectives:** Prepare final evaluation documentation adhering to assignment confidentiality.
 - **Key Activities:**
   - Finalize `README.md` with setup instructions, architectural rationale, AI cost analysis, and known limitations.

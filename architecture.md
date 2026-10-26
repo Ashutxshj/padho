@@ -294,3 +294,62 @@ flowchart TD
 - **ACID Transactions:** Every ticket state transition, message posting, and note creation runs within explicit database transactions (`async with session.begin():`).
 - **Connection Pooling:** SQLAlchemy connection pool configured with `pool_size=10`, `max_overflow=20`, and `pool_pre_ping=True` to detect stale connections.
 - **Index Optimization:** Database indexes placed on `tickets.author_id`, `tickets.status`, `tickets.priority`, `tickets.category`, and `tickets.created_at` to ensure sub-millisecond query performance on large ticket queues.
+
+---
+
+## 11. Production Cloud Topology & Infrastructure Configuration
+
+```mermaid
+flowchart LR
+    subgraph Client ["Client Devices"]
+        Browser["Author / Ops Browser"]
+    end
+
+    subgraph Vercel ["Vercel Edge Platform"]
+        NextJS["Next.js 14 App Router\n(Static & Dynamic SSR)"]
+    end
+
+    subgraph Render ["Render Cloud Web Service"]
+        FastAPI["FastAPI / Uvicorn ASGI\n(Python 3.12 Engine)"]
+        Broadcaster["In-Memory Async SSE Hub\n(/api/v1/stream/tickets)"]
+        AIService["Gemini / Mock AI Pipeline"]
+    end
+
+    subgraph Supabase ["Supabase Managed Cloud"]
+        Pooler["Supavisor IPv4 Pooler\n(aws-0-*.pooler.supabase.com:5432)"]
+        Postgres[(PostgreSQL 15 Database)]
+    end
+
+    Browser -->|HTTPS / Next.js Pages| NextJS
+    Browser -->|REST API & SSE / Bearer JWT| FastAPI
+    FastAPI --> Broadcaster
+    FastAPI --> AIService
+    FastAPI -->|AsyncPG TLS / statement_cache_size=0| Pooler
+    Pooler --> Postgres
+```
+
+### Cloud Integration Safeguards
+1. **Supabase IPv6 vs Render IPv4 Routing:** Direct Supabase endpoints (`db.[ref].supabase.co`) resolve exclusively to IPv6 addresses on free tiers, which fail on IPv4-only outbound cloud runners with `Errno 101 Network is unreachable`. The architecture routes all production traffic through the Supabase Connection Pooler (`aws-0-[region].pooler.supabase.com:5432`).
+2. **Permissive TLS Context for Proxy Certificates:** Supabase poolers utilize internal proxy routing certificates. The SQLAlchemy `create_async_engine` configures a custom `ssl.SSLContext` with `check_hostname = False` and `verify_mode = ssl.CERT_NONE` to prevent `[SSL: CERTIFICATE_VERIFY_FAILED]` exceptions.
+3. **Prepared Statement Caching Inactivation:** Transaction pooling architectures (Supavisor / PgBouncer) do not support named prepared statement caches across pooled client threads. The asyncpg engine explicitly sets `statement_cache_size = 0`.
+4. **Flexible CORS Parsing:** `BACKEND_CORS_ORIGINS` dynamically supports wildcard `*`, comma-separated origin strings, or JSON arrays, enabling seamless cross-origin requests from Vercel preview and production domains.
+
+---
+
+## 12. Editorial UI Design Architecture & Anti-AI Standard
+
+The frontend user interface strictly implements the **Erik D. Kennedy 7 Rules for Creating Gorgeous UI** and the **Anti 'AI-Generated Look' Specification**:
+
+1. **Editorial Typography (Rule 11 & Anti-AI #27):** Uses **`Source_Sans_3`** (humanist publication typeface via Google Fonts) with `-1%` negative letter-spacing on headings (`tracking-tight`), rejecting generic AI fonts (Inter, Geist, Space Grotesk).
+2. **Physical Sky-Light Model (Rule 2):**
+   - Inputs and textareas simulate an inset recess using top-inset shadows: `box-shadow: inset 0 1px 2px rgba(0,0,0,0.04)`.
+   - Raised cards and action buttons simulate downward sunlight with subtle bottom-edge elevation: `box-shadow: 0 1px 2px rgba(0,0,0,0.03)`.
+3. **Warm Paper Palette (Rule 4 & Anti-AI #2, #4):** Replaces sterile `#ffffff` backgrounds with a tactile bookish off-white (`#fbfbf9`), banning multi-hue gradients and purple-black startup color palettes.
+4. **Anti-AI Ornamentation Elimination:**
+   - Zero sparkle icons (✨) near AI features (Anti-AI #14).
+   - Zero emojis in UI headings, tables, or copy (Anti-AI #15).
+   - Zero checkmark bullets (`✓`) or bento-box mosaics (Anti-AI #16, #20).
+   - Zero em dashes ("—") in customer copy; restructured with clear clauses (Anti-AI #23).
+5. **Product Completeness & Skeleton Transitions (Anti-AI #28, #29, #30):**
+   - Dedicated Terms of Service (`/terms`) and Privacy Policy (`/privacy`) routes.
+   - Comprehensive `Skeleton`, `CardSkeleton`, and `TableSkeleton` states replacing raw spinners to prevent visual reflow and layout jumps.
