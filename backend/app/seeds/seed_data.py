@@ -25,8 +25,23 @@ def parse_date(date_str: str | None) -> date | None:
 async def seed_database():
     """Initializes database schema and populates with sample authors, books, and tickets."""
     print("Initializing database tables...")
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        err_msg = str(e)
+        if "101" in err_msg or "Network is unreachable" in err_msg or "Errno 101" in err_msg:
+            print("\n" + "=" * 80)
+            print("DATABASE CONNECTION ERROR: [Errno 101] Network is unreachable")
+            print("Reason: You are using the Supabase direct connection URL (db.xxxx.supabase.co:5432).")
+            print("Supabase direct connection uses IPv6, which is not supported on Render.")
+            print("\nSOLUTION (Takes 30 seconds in Supabase):")
+            print("1. Open Supabase Dashboard -> Click 'Connect' at the top.")
+            print("2. Under 'Connection string', select 'Session' or 'Transaction' pooler.")
+            print("3. Copy the URI (host looks like: aws-0-[region].pooler.supabase.com, port 5432 or 6543).")
+            print("4. Set DATABASE_URL in Render to that pooler URL.")
+            print("=" * 80 + "\n")
+        raise
     
     # Locate bookleaf_sample_data.json
     possible_paths = [

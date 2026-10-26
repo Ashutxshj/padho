@@ -20,4 +20,4 @@ COPY ../bookleaf_sample_data.json ./bookleaf_sample_data.json
 EXPOSE 8000
 
 # Run database seed and start server
-CMD ["sh", "-c", "python -m app.seeds.seed_data && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+CMD ["sh", "-c", "python -m app.seeds.seed_data && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

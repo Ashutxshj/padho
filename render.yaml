@@ -5,8 +5,8 @@ services:
     region: oregon
     plan: free
     rootDir: backend
-    buildCommand: "pip install -r requirements.txt && python -m app.seeds.seed_data"
-    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python -m app.seeds.seed_data && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: PROJECT_NAME
         value: "BookLeaf Author Support & Communication Portal"
@@ -16,7 +16,7 @@ services:
         value: "1440"
       - key: DATABASE_URL
         sync: false
-        placeholder: "postgresql+asyncpg://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT].supabase.co:5432/postgres"
+        placeholder: "postgresql+asyncpg://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:6543/postgres"
       - key: BACKEND_CORS_ORIGINS
         value: "*"
       - key: AI_PROVIDER

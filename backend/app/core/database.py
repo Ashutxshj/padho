@@ -16,6 +16,8 @@ if db_url.startswith("sqlite"):
 else:
     # PostgreSQL / Supabase configuration
     engine_kwargs["pool_pre_ping"] = True
+    connect_args = {}
+
     # Clean sslmode from query parameters if present, as asyncpg handles SSL via connect_args
     if "sslmode" in db_url:
         db_url = re.sub(r"[?&]sslmode=[^&]+", "", db_url)
@@ -24,7 +26,15 @@ else:
 
     # Enable SSL for remote cloud databases (e.g., Supabase / AWS / Render)
     if not any(local in db_url for local in ("localhost", "127.0.0.1", "0.0.0.0")):
-        engine_kwargs["connect_args"] = {"ssl": True}
+        connect_args["ssl"] = True
+
+    # Supabase Connection Pooler (port 6543 or 5432) requires statement_cache_size=0
+    # to prevent prepared statement conflicts in transaction pooling mode
+    if "pooler" in db_url or ":6543" in db_url or "supabase" in db_url:
+        connect_args["statement_cache_size"] = 0
+
+    if connect_args:
+        engine_kwargs["connect_args"] = connect_args
 
 engine = create_async_engine(
     db_url,
