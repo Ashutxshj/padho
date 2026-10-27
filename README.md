@@ -1,183 +1,198 @@
 # BookLeaf Author Support & Communication Portal
 
-An enterprise-grade, dual-portal web application engineered for **BookLeaf Publishing** to streamline author communications, track book sales and royalties, and empower operations staff with AI-driven ticket categorization, priority assessment, and knowledge-grounded response drafting.
-
-Built with an editorial publication design system complying with the **Erik D. Kennedy UI Design Rules** and the **Anti "AI-Generated Look" Standards**.
+> **Live Production Deployment:** [https://author-three-sable.vercel.app](https://author-three-sable.vercel.app)  
+> *The entire application is live and pre-seeded. Reviewers can test both the Author Portal and the Admin Operations Portal directly in the browser without installing anything locally.*
 
 ---
 
-## 1. Quick Start & Demonstration Credentials
+## 1. Quick Test: Live Demo Credentials
 
-Pre-seeded demonstration accounts are configured out of the box with realistic catalog data:
+The live deployment is pre-seeded with all 10 authors and 18 books from `bookleaf_sample_data.json` alongside an operations administrator account:
 
-| Role | Name | Email | Password | Access Scope |
+| Role | Name | Email | Password | What to Test |
 | :--- | :--- | :--- | :--- | :--- |
-| **Admin** | Operations Staff | `admin@bookleafpub.com` | `Admin123!` | Master Operations Queue, AI Draft Studio, Status & Priority Overrides, Private Staff Notes. |
-| **Author** | Priya Sharma | `priya.sharma@email.com` | `Author123!` | Standard author catalog (*Whispers of the Ganges*, *The Saffron Diaries*), Royalty breakdown, Ticket conversation feed. |
-| **Author** | Ananya Reddy | `ananya.reddy@email.com` | `Author123!` | Pending royalties test (*Echoes of the Deccan*, ₹2,546 pending, payout date null). |
-| **Author** | Kavita Deshmukh | `kavita.deshmukh@email.com` | `Author123!` | Sub-threshold edge case (*Midnight Musings*, ₹850 pending: rolls over to next quarter under ₹1,000 threshold). |
-| **Author** | Vikram Seth | `vikram.seth@email.com` | `Author123!` | Production pipeline edge case (*Midnight in Mysore*, Cover Design stage, null dates and ₹0 royalties). |
+| **Admin (Staff)** | Operations Desk | `admin@bookleafpub.com` | `Admin123!` | Master Triage Queue, AI Auto-Classification & Urgency Rationale, Response Draft Assistant, Triage Overrides, Private Staff Notes. |
+| **Author (Standard)** | Priya Sharma | `priya.sharma@email.com` | `Author123!` | Published catalog (*Whispers of the Ganges*, *The Saffron Diaries*), Royalty breakdown, Inquiry thread. |
+| **Author (Pending Royalties)** | Ananya Reddy | `ananya.reddy@email.com` | `Author123!` | *Echoes of the Deccan* has ₹2,546 pending (exceeds ₹1,000 threshold: marked "Eligible for Next Quarter Run"). |
+| **Author (Sub-Threshold)** | Kavita Deshmukh | `kavita.deshmukh@email.com` | `Author123!` | *Midnight Musings* has ₹850 pending (under ₹1,000 threshold: rolls over to next quarter). |
+| **Author (In Production)** | Vikram Seth | `vikram.seth@email.com` | `Author123!` | *Midnight in Mysore* in Cover Design stage (null publication date, ₹0 royalties, empty distribution list). |
 
-*(All authors `AUTH001` through `AUTH010` from `bookleaf_sample_data.json` are seeded with password `Author123!`)*
-
----
-
-## 2. Key Features
-
-### Author Portal
-- **Catalog & Royalties Dashboard (`/author/books`):** Transparent overview of published titles and production stages, ISBNs, sales volumes, lifetime royalties earned, royalties disbursed, and pending balance.
-- **Asymmetric Balance Sheet:** Structured financial card presenting net profit breakdowns (80% net profit formula: MRP minus printing cost, platform commission, and shipping) alongside payout threshold status.
-- **Royalty Threshold Tracking:** Clear indicators verifying whether pending royalties meet the **₹1,000 threshold** or safely roll over to the subsequent quarter.
-- **Inquiry Submission (`/author/tickets/new`):** Intuitive form allowing authors to link specific owned books (or choose *General or Account Level*), provide descriptions, and receive immediate tracking references.
-- **Real-Time Live Updates (`/author/tickets/[id]`):** Uses **Server-Sent Events (SSE)** so admin replies and status transitions update dynamically on screen without full page reloads.
-- **Hard Data Isolation:** Strict server-side authorization ensuring authors can only ever access their own books and tickets.
-
-### Admin Operations Portal
-- **Master Triage Queue (`/admin/queue`):** Multi-filter engine (Status, Category, Priority, Text Search) with deterministic urgency scoring.
-- **SLA Breach Warnings:** Prominently flags unresolved open tickets older than 48 hours with overdue badges.
-- **AI Auto-Classification:** Categorizes tickets into exactly one of 6 canonical BookLeaf categories with rationales.
-- **AI Priority Scoring:** Rates tickets (*Critical*, *High*, *Medium*, *Low*) based on business and financial urgency.
-- **Audit-Preserving Overrides:** Operations staff can override machine suggestions; the database preserves both AI proposals and human decisions.
-- **Response Draft Assistant Studio:** Grounded in BookLeaf's official Knowledge Base policies and the author's real catalog metrics. Provides one-click draft generation with editable previews before public dispatch.
-- **Private Staff Notes:** Secure internal commentary hidden from authors for team coordination.
+*(All authors `AUTH001` through `AUTH010` from the sample dataset are pre-seeded with the password: `Author123!`)*
 
 ---
 
-## 3. Editorial UI Design System & Anti-AI Standards
+## 2. Local Setup Guide (Running on Personal Computer)
 
-The frontend was engineered to avoid generic AI-template aesthetics by adhering to strict human design principles:
-
-1. **Editorial Typography:** Replaced generic AI fonts (Inter, Geist, Space Grotesk) with **`Source_Sans_3`** (humanist publication typeface via Google Fonts) with tight negative tracking on headings.
-2. **Warm Tactile Palette:** Replaced harsh `#fff` with warm, bookish paper tones (`#fbfbf9`), eliminating loud multi-stop gradients and sterile purple/black startup colors.
-3. **Sky-Light Elevation Model:** Raised elements feature subtle bottom-only shadows (`0 1px 2px rgba(0,0,0,0.03)`), while interactive inputs use subtle top-insets (`inset 0 1px 2px rgba(0,0,0,0.04)`).
-4. **Anti-AI Ornament Diet:**
-   - Zero sparkle icons (✨) near AI features; replaced with dignified "Response Draft Assistant".
-   - Zero emojis in headings, lists, or UI copy.
-   - Zero checkmark bullets (`✓`) or bento box card mosaics.
-   - Zero em dashes ("—") in copy; restructured sentences with clear clauses.
-5. **Product Completeness:**
-   - Formal **Terms of Service** page at [`/terms`](file:///c:/Users/Ashut/OneDrive/Desktop/Projects/padho/frontend/src/app/terms/page.tsx).
-   - Formal **Privacy Policy** page at [`/privacy`](file:///c:/Users/Ashut/OneDrive/Desktop/Projects/padho/frontend/src/app/privacy/page.tsx).
-   - **Skeleton Loaders:** Replaced all raw spinners with structured `Skeleton`, `CardSkeleton`, and `TableSkeleton` states to eliminate layout jumps.
-
----
-
-## 4. Production Cloud Architecture
-
-```
-+-----------------------------------------------------------------------------------------+
-|                                    VERCEL EDGE TIER                                     |
-|                                Next.js 14 (App Router)                                  |
-|   - 11 Statically & Dynamically Compiled Routes                                         |
-|   - Environment: NEXT_PUBLIC_API_URL=https://<render-backend>/api/v1                    |
-+--------------------------------------------+--------------------------------------------+
-                                             |
-                                             | HTTPS / JSON REST API & SSE EventStream
-                                             v
-+--------------------------------------------+--------------------------------------------+
-|                                    RENDER WEB SERVICE                                   |
-|                                  FastAPI (Python 3.12)                                  |
-|   - Uvicorn Asynchronous ASGI Server                                                    |
-|   - Server-Sent Events Broadcaster (/api/v1/stream/tickets)                             |
-|   - Pluggable Gemini / OpenAI / Mock AI Service Layer                                   |
-+--------------------------------------------+--------------------------------------------+
-                                             |
-                                             | AsyncPG TLS Connection (IPv4 Pooler)
-                                             | Port 5432 / 6543, statement_cache_size=0
-                                             v
-+-----------------------------------------------------------------------------------------+
-|                                SUPABASE POSTGRESQL POOLER                               |
-|   - Supavisor Connection Pooler (aws-0-[region].pooler.supabase.com)                     |
-|   - Permissive SSLContext (check_hostname=False, verify_mode=CERT_NONE)                 |
-|   - Pre-seeded tables: Users, Books, Tickets, Messages, InternalNotes, AILogs           |
-+-----------------------------------------------------------------------------------------+
-```
-
----
-
-## 5. Technology Stack & Decision Rationale
-
-| Layer | Selected Tech | Rationale |
-| :--- | :--- | :--- |
-| **Backend API** | **FastAPI (Python 3.12)** | Asynchronous performance, Pydantic v2 strict type validation, auto-generated OpenAPI/Swagger documentation, and native AI/LLM integration. |
-| **Frontend UI** | **Next.js 14 (App Router) + Tailwind CSS** | Server-side rendering, responsive component architecture, rapid styling, and clean file-based routing. |
-| **Database** | **SQLAlchemy 2.0 (Async) + PostgreSQL / SQLite** | ACID compliance, strict foreign key constraints, and financial calculation invariants (`earned - paid == pending`). Compatible with Supabase pooler and local SQLite. |
-| **Real-Time Hub** | **Server-Sent Events (SSE)** | Lightweight unidirectional real-time streaming with keep-alive heartbeat pings and automatic polling fallback. |
-| **AI Integration** | **Pluggable `AIService` Layer** | Seamlessly supports live LLM providers (Google Gemini, OpenAI, Claude) alongside a **Deterministic Mock Provider** for zero-cost offline evaluations. |
-
----
-
-## 6. Local Setup Instructions
+Follow these simple steps to clone the repository and run the entire stack locally.
 
 ### Prerequisites
-- Python 3.10+
-- Node.js 18+ and npm
-- Git
-
-### 6.1 Backend Setup
-```bash
-# 1. Navigate to backend directory
-cd backend
-
-# 2. Create and activate a virtual environment
-python -m venv .venv
-# On Windows:
-.\.venv\Scripts\activate
-# On Linux/macOS:
-source .venv/bin/activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Seed the database with sample dataset (10 authors, 18 books)
-python -m app.seeds.seed_data
-
-# 5. Start the backend development server
-uvicorn app.main:app --reload --port 8000
-```
-*The backend API will be available at `http://localhost:8000`.*  
-*Interactive Swagger API documentation: `http://localhost:8000/api/v1/docs`*
-
-### 6.2 Frontend Setup
-```bash
-# 1. Open a new terminal and navigate to frontend directory
-cd frontend
-
-# 2. Install npm packages
-npm install
-
-# 3. Start the Next.js development server
-npm run dev
-```
-*The web portal will be accessible at `http://localhost:3000`.*
+- **Git** installed ([Download Git](https://git-scm.com/))
+- **Python 3.10+** (Python 3.11 or 3.12 recommended, [Download Python](https://www.python.org/))
+- **Node.js 18+** and **npm** ([Download Node.js](https://nodejs.org/))
 
 ---
 
-## 7. Automated Testing Suite
+### Step 1: Clone the Repository
 
-A comprehensive test suite verifies business logic, data isolation, AI parsing, and RBAC authorization boundaries:
+Open your terminal (PowerShell, Command Prompt, or Bash) and clone the project:
+
+```bash
+git clone https://github.com/Ashutxshj/padho.git
+cd padho
+```
+
+---
+
+### Step 2: Backend Setup (FastAPI & Database)
+
+1. Navigate to the `backend` directory:
+   ```bash
+   cd backend
+   ```
+
+2. Create a Python virtual environment:
+   ```bash
+   # On Windows:
+   python -m venv .venv
+   .\.venv\Scripts\activate
+
+   # On macOS / Linux:
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+3. Install required Python packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Create your local environment configuration:
+   ```bash
+   # On Windows PowerShell:
+   Copy-Item .env.example .env
+
+   # On macOS / Linux / Bash:
+   cp .env.example .env
+   ```
+   *(By default, `.env` is configured to use a lightweight SQLite database `sqlite+aiosqlite:///./bookleaf.db` and the deterministic Mock AI Service for zero-cost, offline testing).*
+
+5. Seed the database with the sample dataset (10 authors, 18 books, and admin user):
+   ```bash
+   python -m app.seeds.seed_data
+   ```
+
+6. Start the FastAPI backend server:
+   ```bash
+   uvicorn app.main:app --reload --port 8000
+   ```
+
+- **Backend API:** `http://localhost:8000`
+- **Interactive Swagger Documentation:** `http://localhost:8000/api/v1/docs`
+- **Service Health Check:** `http://localhost:8000/api/health`
+
+---
+
+### Step 3: Frontend Setup (Next.js 14)
+
+Open a **second terminal window** and navigate to the project's `frontend` directory:
+
+1. Navigate to the `frontend` folder:
+   ```bash
+   cd padho/frontend
+   ```
+
+2. Install Node dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Create the frontend environment configuration:
+   ```bash
+   # On Windows PowerShell:
+   Copy-Item .env.example .env.local
+
+   # On macOS / Linux / Bash:
+   cp .env.example .env.local
+   ```
+   *(By default, it points to your local backend: `NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1`)*
+
+4. Start the Next.js development server:
+   ```bash
+   npm run dev
+   ```
+
+- **Frontend Web Portal:** Open [http://localhost:3000](http://localhost:3000) in your web browser.
+
+---
+
+### Alternative: Run with Docker Compose (Single Command)
+
+If you have Docker installed, you can launch the entire stack in one command from the project root:
+
+```bash
+docker compose up --build
+```
+- Web Portal: `http://localhost:3000`
+- API & Docs: `http://localhost:8000/api/v1/docs`
+
+---
+
+## 3. Running Automated Tests
+
+A comprehensive test suite of 16 automated tests covers authentication, data isolation, royalty accounting, ticket lifecycle, and AI triage logic:
 
 ```bash
 cd backend
-.\.venv\Scripts\pytest -v
+# With virtual environment activated:
+pytest -v
 ```
 
 ### Verified Test Suites (16/16 Passed):
-- `tests/test_auth.py`: Login flows, credential verification, JWT issuance, profile endpoints.
-- `tests/test_books.py`: Author book isolation, admin catalog queries, aggregate royalty calculations.
-- `tests/test_tickets.py`: Ticket creation with owned books, rejection of unowned book IDs, status updates, messaging.
-- `tests/test_ai.py`: Category classification, priority scoring, grounded response drafting.
-- `tests/test_security.py`: Cross-author ticket access rejections, unauthenticated blocking, internal notes confidentiality.
+- `tests/test_auth.py`: Health checks, JWT token issuance, password hash validation, current user profile.
+- `tests/test_books.py`: Author catalog isolation, admin view-all access, aggregate royalty calculation.
+- `tests/test_tickets.py`: Creating inquiries with owned books, rejection of unowned book IDs (`403 Forbidden`), status transitions, messaging.
+- `tests/test_ai.py`: 6-category classification, 4-tier priority scoring, knowledge-grounded response drafting.
+- `tests/test_security.py`: Cross-author data access rejection, unauthenticated route blocking, internal staff notes confidentiality.
 
 ---
 
-## 8. Live Demonstration Script
+## 4. Live Evaluation Walkthrough (2-Minute Test Script)
 
-1. **Step 1:** Navigate to `/login`. Click **"Ananya Reddy (₹2,546 Pending)"** to log in.
-2. **Step 2:** On the **Author Catalog & Royalties** page, review the asymmetric balance sheet and verify that pending royalties (₹2,546) exceed the ₹1,000 threshold and show "Eligible for Next Quarter Run".
-3. **Step 3:** Click **"Submit Inquiry"**. Select *Echoes of the Deccan*, enter subject *"Inquiry on Q3 Royalty Payout Schedule"*, and submit.
-4. **Step 4:** Log out, then click **"Operations Admin"** (`admin@bookleafpub.com` / `Admin123!`).
-5. **Step 5:** On the **Operations Triage Queue**, observe the new ticket auto-classified as `Royalty & Payments` with `High` priority.
-6. **Step 6:** Open the ticket detail cockpit. In the **Response Draft Assistant**, click **"Generate Draft"** to produce an empathetic draft citing BookLeaf policies. Click **"Insert Draft Into Reply Composer"**, edit the text, and click **"Send Public Reply"**.
-7. **Step 7:** Add a private internal staff note (*"Bank account verified with Axis Bank, scheduled for batch run"*).
-8. **Step 8:** Re-open the author view in a separate window: notice the admin reply appears dynamically via real-time SSE without page reload, while internal notes remain completely hidden.
+To experience the dual-portal workflow on the live site ([https://author-three-sable.vercel.app](https://author-three-sable.vercel.app)):
+
+1. **Step 1 (Author Portal):**
+   - Go to [https://author-three-sable.vercel.app/login](https://author-three-sable.vercel.app/login).
+   - Click the quick button **"Ananya Reddy (₹2,546 Pending)"** to log in.
+   - On the **Catalog & Royalties** page, review the asymmetric balance sheet: note that pending royalties (₹2,546) exceed the ₹1,000 threshold and show "Eligible for Next Quarter Run".
+   - Click **"Submit Inquiry"**, select *Echoes of the Deccan*, enter subject *"Inquiry on Q3 Royalty Payout Schedule"*, and submit.
+
+2. **Step 2 (Admin Operations Portal):**
+   - Log out, then click **"Operations Admin"** (`admin@bookleafpub.com` / `Admin123!`).
+   - On the **Operations Triage Queue**, observe the new inquiry automatically categorized as `Royalty & Payments` with `High` priority.
+   - Click into the inquiry.
+   - In the **Response Draft Assistant**, click **"Generate Draft"**. The engine synthesizes a personalized reply citing BookLeaf's 80/20 net profit split, quarterly payout cycle, and the exact ₹2,546 balance.
+   - Click **"Insert Draft Into Reply Composer"**, edit the text, and click **"Send Public Reply"**.
+   - Add a private note in the **Internal Notes** box (*"Verified with finance desk, scheduled for batch run"*).
+
+3. **Step 3 (Real-Time Live Updates):**
+   - Open a separate browser window as author Ananya Reddy: the admin response appears dynamically on her screen via **Server-Sent Events (SSE)** without needing a page refresh, while internal staff notes remain completely private.
+
+---
+
+## 5. Technology Stack & Key Architectural Highlights
+
+| Layer | Technology | Key Capabilities |
+| :--- | :--- | :--- |
+| **Frontend** | **Next.js 14 (App Router) + Tailwind CSS** | Editorial publication design system (`Source_Sans_3` font, `#fbfbf9` warm paper palette, sky-light elevation model, skeleton loaders, `/terms` and `/privacy` compliance pages). |
+| **Backend** | **FastAPI (Python 3.12)** | Asynchronous ASGI execution, strict Pydantic v2 schemas, automated OpenAPI/Swagger documentation, and RFC 7807 error formatting. |
+| **Database** | **SQLAlchemy 2.0 (Async) + PostgreSQL / SQLite** | Multi-environment compatibility: Supabase managed PostgreSQL with connection pooler (`statement_cache_size=0`) in production and SQLite for local development. |
+| **Real-Time** | **Server-Sent Events (SSE)** | Dynamic real-time event broadcasting (`/api/v1/stream/tickets`) with keep-alive heartbeat and polling fallback. |
+| **AI Layer** | **Pluggable `AIService` Interface** | Live LLM integration (Google Gemini / OpenAI / Claude) with an automatic offline deterministic mock fallback ensuring 100% test reliability. |
+
+---
+
+## 6. Assumptions & Implementation Notes
+
+1. **Royalty Disbursement:** The portal calculates royalties on an 80/20 net profit split and tracks threshold eligibility (₹1,000 minimum); payouts are scheduled for batch accounting runs within 45 days post-quarter.
+2. **Production Milestones:** Manuscript stages (*Cover Design*, *Typesetting*, *Proofreading*) are displayed transparently to authors; typesetting and design files are edited in specialized publishing software outside the web browser.
+3. **AI Fallback Resilience:** The application is architected so that tickets are committed to the database *before* AI processing begins. If an external AI provider times out or is rate-limited, the system assigns sensible defaults (`General Inquiry`, `Medium` priority) and logs a fallback status, guaranteeing zero ticket loss.
