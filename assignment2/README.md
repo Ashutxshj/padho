@@ -1,118 +1,158 @@
 # BookLeaf Publishing — Technical Assignment 2
-## Author Royalty Dashboard & Automated Notification System (Bubble.io + n8n + AI Integration)
+## Author Royalty Dashboard & Automated Notification System
+### Bubble.io + n8n Cloud + Google Gemini AI Integration
 
-Live Application & Demonstration Links:
-- **Admin Portal (Version-Test):** Available in Bubble test mode
-- **Author Portal (Version-Test):** Available in Bubble test mode
-- **Test Admin Login:** `admin@bookleafpub.com` / `admin123`
-- **Test Author Login:** `priya.sharma@email.com` / `author123`
-- **n8n Workflow Webhook:** `https://sweetsalt.app.n8n.cloud/webhook/bookleaf-royalty`
+---
+
+## Executive Summary & Quick Links
+- **Admin Operations Console:** Available in Bubble Test Mode (`admin_dashboard`)
+- **Author Royalty Portal:** Available in Bubble Test Mode (`author_dashboard`)
+- **Pre-Seeded Test Credentials:**
+  - **Operations Admin:** `admin@bookleafpub.com` / `admin123`
+  - **Author (Priya Sharma - Pending):** `priya.sharma@email.com` / `author123`
+- **Live n8n Cloud Webhook:** `https://sweetsalt.app.n8n.cloud/webhook/bookleaf-royalty`
+- **Submission Collaborator:** `musavir@bookleafpub.in`
+- **Formatted Word Document:** [BookLeaf_Assignment_2_Documentation.docx](file:///c:/Users/Ashut/OneDrive/Desktop/Projects/padho/assignment2/BookLeaf_Assignment_2_Documentation.docx)
 
 ---
 
 ## 1. System Architecture
 
 ```
-┌────────────────────────────────────────────────────────┐
-│                      Bubble.io                         │
-│                                                        │
-│  ┌────────────────────────┐  ┌──────────────────────┐  │
-│  │   Author Portal        │  │    Admin Portal      │  │
-│  │ (/author_dashboard)    │  │ (/admin_dashboard)   │  │
-│  │  - Balance Sheet       │  │  - Directory Table   │  │
-│  │  - Status Badges       │  │  - Search & Filters  │  │
-│  │  - Registered Books    │  │  - Author Detail     │  │
-│  └────────────────────────┘  │  - Trigger Button    │  │
-│                              └──────────┬───────────┘  │
-│  ┌────────────────────────┐             │              │
-│  │    Bubble Database     │             │ POST Webhook │
-│  │  - User                │             │ (API Conn.)  │
-│  │  - Author              │             │              │
-│  │  - Book                │             ▼              │
-│  │  - Notification_Log    │◄────────────┴───────────┐  │
-│  └────────────────────────┘  Synchronous Response   │  │
-│                               (status + AI summary) │  │
-└─────────────────────────────────────────▲──────────────┘
-                                          │
-                        ┌─────────────────┴──────────────────┐
-                        │             n8n Cloud              │
-                        │                                    │
-                        │  1. Webhook Receiver               │
-                        │  2. x-bookleaf-api-key Auth Check  │
-                        │  3. Data & Invariant Formatter     │
-                        │  4. Google Gemini AI Model         │
-                        │  5. Grounded Prompt Engine         │
-                        │  6. Respond to Webhook (JSON)      │
-                        └────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           BUBBLE.IO APPLICATION TIER                            │
+│                                                                                 │
+│   ┌───────────────────────────────────┐     ┌────────────────────────────────┐  │
+│   │   Author Portal (/author_dash)    │     │  Admin Portal (/admin_dash)    │  │
+│   │   • 2-Column Balance Sheet        │     │  • Author Directory Table      │  │
+│   │   • 3-Color Dynamic Badges        │     │  • City & Payout Status Filter │  │
+│   │   • Registered Books Catalog      │     │  • Author Detail Breakdown     │  │
+│   └───────────────────────────────────┘     │  • "Generate Summary" Action   │  │
+│                                             └───────────────┬────────────────┘  │
+│   ┌───────────────────────────────────┐                     │                   │
+│   │     Bubble Relational DB & Privacy│                     │ POST Webhook      │
+│   │   • Author (cached aggregates)    │                     │ (API Connector)   │
+│   │   • Book (itemized royalties)     │                     │                   │
+│   │   • User (multi-tenant auth)      │                     ▼                   │
+│   │   • Notification_Log (audit trail)│◄────────────────────┴────────────────┐  │
+│   └───────────────────────────────────┘        Synchronous Response          │  │
+│                                                 { status: "Success", ... }   │  │
+└─────────────────────────────────────────────────────────────▲────────────────┘  │
+                                                              │                   │
+                                   ┌──────────────────────────┴───────────────────┴───┐
+                                   │            n8n CLOUD AUTOMATION ENGINE           │
+                                   │                                                  │
+                                   │  [Node 1] Webhook Receiver (POST /bookleaf-...)  │
+                                   │                            │                     │
+                                   │  [Node 2] Security Check (x-bookleaf-api-key)    │
+                                   │                            │                     │
+                                   │  [Node 3] Data & Invariants Formatter (JS Code)  │
+                                   │                            │                     │
+                                   │  [Node 4 & 5] Google Gemini AI Model             │
+                                   │               • Policy Grounded (80/20, ₹1000)   │
+                                   │               • Zero Hallucination Engine        │
+                                   │                            │                     │
+                                   │  [Node 6] Respond to Webhook (JSON Response)     │
+                                   └──────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 2. Bubble.io Implementation Details
+## 2. Bubble Database Schema & Structural Rationale
 
-### 2.1 Database Entities & Relationships
-- **`Author`**:
-  - `author_id` (text), `name` (text), `email` (text), `phone` (text), `city` (text), `joined_date` (date)
-  - Pre-calculated financial fields: `cached_total_earned`, `cached_total_paid`, `cached_total_pending`, `cached_payout_status`
-- **`Book`**:
-  - `book_id` (text), `author` (Author link), `title` (text), `isbn` (text), `genre` (text), `status` (text), `publication_date` (date)
-  - Financials: `mrp`, `author_royalty_per_copy`, `total_copies_sold`, `total_royalty_earned`, `royalty_paid`, `royalty_pending`, `last_royalty_payout_date`
-- **`User`**:
-  - `email` (text), `role` (`"admin"` | `"author"`), `author_profile` (Author link)
-- **`Notification_Log`**:
-  - `author` (Author link), `trigger_type` (text), `status` (`"Success"` | `"Failed"`), `trigger_timestamp` (date), `completion_timestamp` (date), `generated_summary` (text), `error_message` (text)
+The database schema is designed around four relational entities with strict field types and strategic denormalization for high-throughput UI performance:
+
+### 2.1 Schema Entities
+1. **`Author`**:
+   - Primary Identifiers: `author_id` (text), `name` (text), `email` (text), `phone` (text), `city` (text), `joined_date` (date)
+   - Cached Aggregates: `cached_total_earned` (number), `cached_total_paid` (number), `cached_total_pending` (number), `cached_payout_status` (text)
+   - *Rationale:* Placing pre-calculated financial aggregates on the Author entity avoids expensive nested calculations across repeating groups, enabling instant client-side search, city filtering, and status badge rendering.
+2. **`Book`**:
+   - Catalog Details: `book_id` (text), `author` (Author link), `title` (text), `isbn` (text), `genre` (text), `status` (text), `publication_date` (date), `print_partner` (text)
+   - Itemized Financials: `mrp` (number), `author_royalty_per_copy` (number), `total_copies_sold` (number), `total_royalty_earned` (number), `royalty_paid` (number), `royalty_pending` (number), `last_royalty_payout_date` (date)
+   - *Rationale:* Normalizes titles under their author (1-to-many relationship) while properly handling production titles (e.g., `In Production - Cover Design`) where ISBN and publication dates remain unassigned.
+3. **`User`**:
+   - Fields: `email` (text), `role` (`"admin"` | `"author"`), `author_profile` (Author link)
+   - *Rationale:* Decouples authentication accounts from domain author entities and provides a 1-to-1 link for Bubble Privacy Rules.
+4. **`Notification_Log`**:
+   - Fields: `author` (Author link), `trigger_type` (`"manual"`), `status` (`"Success"` | `"Failed"`), `trigger_timestamp` (date), `completion_timestamp` (date), `generated_summary` (text), `error_message` (text), `idempotency_key` (text)
+   - *Rationale:* Immutable audit ledger capturing every AI notification dispatch and storing Gemini's full output text directly on the author record.
 
 ### 2.2 Privacy & Security Rules (Data Tab -> Privacy)
-- **`Author` Privacy Rules**:
-  - `Admin Access`: `Current User's role is "admin"` $\rightarrow$ View all fields, Find in searches.
-  - `Author Self Access`: `Current User's author_profile is This Author` $\rightarrow$ View all fields, Find in searches.
-  - `Everyone else`: All checkboxes unchecked (completely private).
-- **`Book` Privacy Rules**:
-  - `Admin Access`: `Current User's role is "admin"` $\rightarrow$ Full access.
-  - `Author Self Access`: `Current User's author_profile is This Book's author` $\rightarrow$ Full access.
-  - `Everyone else`: All checkboxes unchecked.
-
-### 2.3 Status Badge Business Logic
-1. **Green (`Fully Paid`)**: `cached_total_pending == 0`. (e.g. Farhan Sheikh: ₹3,120 earned, ₹3,120 paid, ₹0 pending).
-2. **Yellow (`Pending`)**: Outstanding royalty within normal 90-day cycle. (e.g. Priya Sharma: ₹3,570 pending, last payout within 90 days).
-3. **Red (`Overdue`)**:
-   - Outstanding balance where last payout date > 90 days ago. (e.g. Vikram Joshi: last payout Aug 20, 2025).
-   - OR book published > 90 days ago with zero payouts ever. (e.g. Ananya Reddy: published July 5, 2024, ₹2,546 pending, no payout ever).
+- **`Author` Rules**:
+  - `Admin Access`: `Current User's role is "admin"` $\rightarrow$ Full read & search permissions.
+  - `Author Self Access`: `Current User's author_profile is This Author` $\rightarrow$ Full read & search permissions.
+  - `Everyone else`: Completely unchecked (blocked).
+- **`Book` Rules**:
+  - `Admin Access`: `Current User's role is "admin"` $\rightarrow$ Full read permissions.
+  - `Author Self Access`: `Current User's author_profile is This Book's author` $\rightarrow$ Full read permissions.
+  - `Everyone else`: Completely unchecked (blocked).
+- *Benefit:* Total multi-tenant isolation; authors cannot inspect or query another author's catalog or royalty statements.
 
 ---
 
-## 3. n8n Automation & AI Workflow
+## 3. How the Bubble ↔ n8n Integration Works
 
-### 3.1 Security Header Verification
-Every webhook request from Bubble includes:
-```http
-x-bookleaf-api-key: bk_live_sec_89f02c78a1bc402
-```
-Node 2 (`Security & Header Check`) blocks unauthorized or missing keys and returns a `401 Unauthorized` status.
+The system connects Bubble.io and n8n Cloud via Bubble's official **API Connector** plugin:
 
-### 3.2 Grounded AI Prompt Policy (Zero Hallucination)
-The Google Gemini AI node is strictly constrained by official BookLeaf business rules:
-- **80/20 Net Royalty Split**: 80% to author, 20% to BookLeaf.
-- **Quarterly Settlement**: Disbursed within 45 calendar days following quarter close.
-- **₹1,000 Minimum Payout Threshold**:
-  - $\ge ₹1,000$: Scheduled for the upcoming quarterly payout run.
-  - $< ₹1,000$: Automatically rolled over to subsequent quarter without fees.
-  - $= ₹0$: Account fully settled.
-- **Production Status Handling**: Unreleased titles in cover design or typesetting do not report sales figures until live.
-
-### 3.3 Synchronous Webhook Response
-To provide an instantaneous user experience and eliminate dependency on Bubble paid backend workflow features, the n8n workflow utilizes the **Respond to Webhook** node. The AI-generated email summary is returned immediately in the HTTP payload and rendered directly in Bubble's Notification Audit Log.
+1. **Trigger Action:** In the Admin operations console, the administrator selects an author and clicks **"Generate & Send Royalty Summary"**.
+2. **Secure HTTPS Webhook:** Bubble dispatches a POST request to `https://sweetsalt.app.n8n.cloud/webhook/bookleaf-royalty` with an enterprise security header:
+   ```http
+   x-bookleaf-api-key: bk_live_sec_89f02c78a1bc402
+   ```
+3. **Security Gatekeeping (Node 2):** n8n validates the key. Requests lacking or presenting an invalid header branch to `false` and return an HTTP 401 Unauthorized response.
+4. **Data Normalization & Business Invariants (Node 3):** A JavaScript code node structures author information, catalog records, and applies payout threshold logic.
+5. **AI Synthesis (Node 4 & 5):** Google Gemini generates the personalized royalty summary email.
+6. **Synchronous Response via `Respond to Webhook` (Node 6):** Because Bubble's Free plan restricts incoming backend workflow webhooks (`/api/1.1/wf/...`), the workflow returns `{ status: "Success", generated_summary: "..." }` synchronously. Bubble captures this in Step 5 and writes it directly to `Notification_Log`.
 
 ---
 
-## 4. Test Scenarios & Verification Matrix
+## 4. AI Prompt Strategy & Zero-Hallucination Policy
 
-| Test Case | Scenario / Author | Expected Badge | Verified Output |
-| :--- | :--- | :--- | :--- |
-| **TC-01** | Farhan Sheikh (AUTH008) | **Green (Fully Paid)** | ₹3,120 Earned, ₹3,120 Paid, ₹0 Pending |
-| **TC-02** | Priya Sharma (AUTH001) | **Yellow (Pending)** | ₹19,908 Earned, ₹16,338 Paid, ₹3,570 Pending |
-| **TC-03** | Ananya Reddy (AUTH003) | **Red (Overdue - Never Paid)** | Published >90 days, ₹2,546 Pending, ₹0 Paid |
-| **TC-04** | Vikram Joshi (AUTH004) | **Red (Overdue - >90 Days)** | Last payout Aug 20, 2025 (>90 days), ₹3,350 Pending |
-| **TC-05** | Search Filter (Admin) | Filter by name `"Priya"` | Instantly filters to Priya Sharma |
-| **TC-06** | Status Filter (Admin) | Filter by `"Overdue"` | Displays Ananya Reddy and Vikram Joshi |
-| **TC-07** | AI Summary Trigger | Click "Generate & Send" | Gemini generates email; logged as `Success` with full text |
+The prompt governing Google Gemini (`gemini-1.5-flash`) is anchored in verified BookLeaf operational rules:
+
+1. **80/20 Royalty Split:** Strictly 80% net profit to the author, 20% to BookLeaf Publishing.
+2. **Quarterly Settlement Timing:** Royalties are disbursed via direct bank transfer within 45 calendar days following quarter close.
+3. **Threshold Invariant Logic:**
+   - **Pending $\ge ₹1,000$:** Scheduled for the upcoming quarterly payout run.
+   - **Pending $< ₹1,000$:** Automatically rolls over to the subsequent quarter without administrative fees.
+   - **Pending $= ₹0$:** Fully settled; no balance outstanding.
+4. **Production Titles:** Books in design or typesetting are reported by status without artificial sales numbers.
+5. **Strict Grounding:** Gemini is instructed with a zero-hallucination constraint—never invent sales figures, dates, transaction reference numbers, or payment commitments not supplied in the verified JSON payload.
+
+---
+
+## 5. Multi-Tier Error Handling Approach
+
+- **Bubble API Connector Level:** Configured with `Include errors in response and allow workflow actions to continue` to prevent unhandled client crashes.
+- **Workflow Branching:**
+  - **Error Path (Step 3 & 4):** Triggers only when `Result of step 2's returned_an_error is yes` $\rightarrow$ marks `Notification_Log` status as `"Failed"`, logs diagnostic error message, and triggers an error alert.
+  - **Success Path (Step 5 & 6):** Triggers only when `Result of step 2's returned_an_error is no` $\rightarrow$ marks status as `"Success"`, saves `body generated_summary`, and triggers an OK alert.
+- **n8n Level:** Validates JSON structure, verifies security headers before invoking LLM nodes (saving AI compute costs), and handles payload edge cases gracefully.
+
+---
+
+## 6. Technical Challenges Faced & Learning Process
+
+1. **Bubble Tier Constraints (CSV Import):** Bubble recently moved native CSV bulk uploads to the paid Starter plan. Rather than upgrading or compromising the schema, we seeded representative authors covering all business rules:
+   - Farhan Sheikh (AUTH008): **Green** (`Fully Paid`) — ₹0 pending.
+   - Priya Sharma (AUTH001): **Yellow** (`Pending`) — ₹3,570 pending in normal cycle.
+   - Ananya Reddy (AUTH003): **Red** (`Overdue`) — Published >90 days, never paid.
+   - Vikram Joshi (AUTH004): **Red** (`Overdue`) — Last payout >90 days ago.
+2. **Overcoming Bubble Free Backend Workflow Paywalls:** Bubble Free disables incoming backend workflow webhooks (`/api/1.1/wf/...`), returning HTTP 401. To solve this, we architected n8n to respond synchronously via the `Respond to Webhook` node, returning the generated email directly in the API call response without needing paid Bubble features.
+3. **Visual AST Expression Builder:** Shifting from code-based programming (`user.role === 'admin'`) to Bubble's chained dropdown parser required learning how Bubble traverses object references (`Current User's author_profile's role is "admin"`).
+4. **AI Grounding & Credential Resilience:** Initial OpenAI personal keys encountered quota exhaustion (HTTP 429). We pivoted to Google Gemini (`gemini-1.5-flash`), setting temperature to 0.2 to deliver completely deterministic, policy-accurate summaries.
+
+---
+
+## 7. Test Scenarios & Verification Matrix
+
+| Test Case | Scenario / Author | Expected Badge & Rule | Observed System Output | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **TC-01** | Farhan Sheikh (AUTH008) | **Green: Fully Paid** (Pending = 0) | Green badge; ₹3,120 earned, ₹3,120 paid, ₹0 pending | **PASS** |
+| **TC-02** | Priya Sharma (AUTH001) | **Yellow: Pending** (Normal cycle) | Yellow badge; ₹19,908 earned, ₹16,338 paid, ₹3,570 pending | **PASS** |
+| **TC-03** | Ananya Reddy (AUTH003) | **Red: Overdue** (Never paid >90d) | Red badge; ₹2,546 pending, zero historical payouts | **PASS** |
+| **TC-04** | Vikram Joshi (AUTH004) | **Red: Overdue** (Last payout >90d) | Red badge; ₹3,350 pending, last payout Aug 20, 2025 | **PASS** |
+| **TC-05** | Directory Search Filter | Search query: `"Priya"` | Live table filters to Priya Sharma instantly | **PASS** |
+| **TC-06** | Status Dropdown Filter | Filter: `"Overdue"` | Displays Ananya Reddy and Vikram Joshi only | **PASS** |
+| **TC-07** | AI Summary Generation | Click "Generate & Send" | Gemini synthesizes summary; logged as `Success` | **PASS** |
