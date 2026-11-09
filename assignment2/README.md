@@ -12,7 +12,7 @@
   - **Author (Priya Sharma - Pending):** `priya.sharma@email.com` / `author123`
 - **Live n8n Cloud Webhook:** `https://sweetsalt.app.n8n.cloud/webhook/bookleaf-royalty`
 - **Submission Collaborator:** `musavir@bookleafpub.in`
-- **Formatted Word Document:** [BookLeaf_Assignment_2_Documentation.docx](file:///c:/Users/Ashut/OneDrive/Desktop/Projects/padho/assignment2/BookLeaf_Assignment_2_Documentation.docx)
+- **Production n8n Workflow Export:** [BookLeaf Royalty Summary & Notification Workflow.json](./BookLeaf%20Royalty%20Summary%20%26%20Notification%20Workflow.json)
 
 ---
 

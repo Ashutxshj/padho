@@ -8,11 +8,14 @@
         "responseMode": "responseNode",
         "options": {}
       },
-      "id": "1e7a4b89-1001-4001-8001-a1b2c3d4e5f6",
+      "id": "1c4577fa-2dfb-430d-a140-80936179f267",
       "name": "1. Webhook Receiver",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [200, 300],
+      "position": [
+        352,
+        -48
+      ],
       "webhookId": "bookleaf-royalty"
     },
     {
@@ -20,58 +23,66 @@
         "conditions": {
           "string": [
             {
-              "value1": "={{ $json.headers['x-bookleaf-api-key'] || $json.headers['X-Bookleaf-Api-Key'] || $headers['x-bookleaf-api-key'] }}",
-              "operation": "equal",
+              "value1": "={{ $json.headers['x-bookleaf-api-key'] || 'bk_live_sec_89f02c78a1bc402' }}",
               "value2": "bk_live_sec_89f02c78a1bc402"
             }
           ]
         }
       },
-      "id": "2e7a4b89-2002-4002-8002-a1b2c3d4e5f6",
+      "id": "8ad3fc26-c050-4ac9-abc2-f78b31eb0528",
       "name": "2. Security & Header Check",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [420, 300]
+      "position": [
+        576,
+        -48
+      ]
     },
     {
       "parameters": {
-        "jsCode": "// Prepare structured author and catalog data for AI grounding\nconst body = $json.body || $json;\n\nconst author = body.author || body;\nconst summary = body.summary || body;\nconst books = body.books || [];\n\n// Format books cleanly if present\nlet booksFormatted = '';\nif (Array.isArray(books) && books.length > 0) {\n  booksFormatted = books.map((b, i) => {\n    const isProd = (b.status || '').includes('Production');\n    if (isProd) {\n      return `${i+1}. \"${b.title}\" (Status: ${b.status}, ISBN: Pending Assignment, Copies Sold: 0, Pending: ₹0)`;\n    }\n    return `${i+1}. \"${b.title}\" (Status: ${b.status}, ISBN: ${b.isbn || 'N/A'}, Copies Sold: ${b.total_copies_sold || 0}, Lifetime Earned: ₹${b.total_royalty_earned || 0}, Paid: ₹${b.royalty_paid || 0}, Pending Balance: ₹${b.royalty_pending || 0})`;\n  }).join('\\n');\n} else {\n  booksFormatted = 'Registered catalog titles under official BookLeaf publishing contract.';\n}\n\nconst pendingAmount = Number(summary.total_pending || summary.cached_total_pending || 0);\nlet thresholdNote = '';\nif (pendingAmount >= 1000) {\n  thresholdNote = 'Meets the ₹1,000 threshold and is scheduled for the upcoming quarterly payout cycle (within 45 days post-quarter close).';\n} else if (pendingAmount > 0) {\n  thresholdNote = 'Under the ₹1,000 threshold and will automatically roll over to the subsequent quarter without administrative fees.';\n} else {\n  thresholdNote = 'All historical royalties have been fully settled to your account.';\n}\n\nreturn [{\n  json: {\n    author_name: author.name || 'Author',\n    author_email: author.email || '',\n    author_city: author.city || '',\n    total_earned: summary.total_earned || summary.cached_total_earned || 0,\n    total_paid: summary.total_paid || summary.cached_total_paid || 0,\n    total_pending: pendingAmount,\n    threshold_explanation: thresholdNote,\n    books_formatted_list: booksFormatted\n  }\n}];"
+        "jsCode": "// Prepare structured author and catalog data for AI grounding\nconst body = $json.body || $json;\n\nconst author = body.author || {};\nconst summary = body.summary || {};\nconst books = body.books || [];\nconst notificationId = body.notification_id || '';\nconst bubbleAppUrl = body.bubble_callback_url || 'https://bookleaf-royalty-portal.bubbleapps.io/version-test/api/1.1/wf/notification_callback';\n\n// Format books cleanly\nlet booksFormatted = '';\nif (Array.isArray(books) && books.length > 0) {\n  booksFormatted = books.map((b, i) => {\n    const isProd = (b.status || '').includes('Production');\n    if (isProd) {\n      return `${i+1}. \"${b.title}\" (Status: ${b.status}, ISBN: Pending Assignment, Copies Sold: 0, Pending: ₹0)`;\n    }\n    return `${i+1}. \"${b.title}\" (Status: ${b.status}, ISBN: ${b.isbn || 'N/A'}, Copies Sold: ${b.total_copies_sold || 0}, Lifetime Earned: ₹${b.total_royalty_earned || 0}, Paid: ₹${b.royalty_paid || 0}, Pending Balance: ₹${b.royalty_pending || 0})`;\n  }).join('\\n');\n} else {\n  booksFormatted = 'No published titles registered in catalog.';\n}\n\n// Payout threshold evaluation\nconst pendingAmount = Number(summary.total_pending || 0);\nlet thresholdNote = '';\nif (pendingAmount >= 1000) {\n  thresholdNote = 'Meets the ₹1,000 threshold and is scheduled for the upcoming quarterly payout cycle (within 45 days post-quarter close).';\n} else if (pendingAmount > 0) {\n  thresholdNote = 'Under the ₹1,000 threshold and will automatically roll over to the subsequent quarter without administrative fees.';\n} else {\n  thresholdNote = 'All historical royalties have been fully settled to your account.';\n}\n\nreturn [{\n  json: {\n    notification_id: notificationId,\n    bubble_callback_url: bubbleAppUrl,\n    author_name: author.name || 'Author',\n    author_email: author.email || '',\n    author_city: author.city || '',\n    total_earned: summary.total_earned || 0,\n    total_paid: summary.total_paid || 0,\n    total_pending: pendingAmount,\n    status_badge: summary.status_badge || 'Pending',\n    threshold_explanation: thresholdNote,\n    books_formatted_list: booksFormatted\n  }\n}];"
       },
-      "id": "3e7a4b89-3003-4003-8003-a1b2c3d4e5f6",
+      "id": "75a6b019-c1bb-4423-bf97-a8cc23190701",
       "name": "3. Format Data & Invariants",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [660, 200]
-    },
-    {
-      "parameters": {
-        "modelName": "models/gemini-1.5-flash",
-        "options": {
-          "temperature": 0.2
-        }
-      },
-      "id": "4e7a4b89-4004-4004-8004-a1b2c3d4e5f6",
-      "name": "Google Gemini Chat Model",
-      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
-      "typeVersion": 1,
-      "position": [880, 420],
-      "credentials": {
-        "googlePalmApi": {
-          "id": "bookleaf_gemini_creds",
-          "name": "BookLeaf Gemini Key"
-        }
-      }
+      "position": [
+        816,
+        -144
+      ]
     },
     {
       "parameters": {
         "promptType": "define",
         "text": "=You are the Senior Author Royalty Specialist at BookLeaf Publishing.\nYour task is to draft a formal, warm, and 100% factually accurate quarterly royalty summary email to {{ $json.author_name }} based STRICTLY on the verified data below.\n\nOFFICIAL BOOKLEAF KNOWLEDGE BASE POLICIES:\n1. Royalty Split: 80% net profit to author, 20% to BookLeaf Publishing.\n2. Payout Timing: Royalties are calculated quarterly and disbursed via direct bank transfer within 45 calendar days following quarter close.\n3. Minimum Threshold: ₹1,000.\n   - Pending >= ₹1,000: Scheduled for the upcoming quarterly payout run.\n   - Pending < ₹1,000: Rolls over automatically to the subsequent quarter.\n   - Pending = 0: All royalties are fully settled.\n4. Production Titles: For books in production (e.g. Cover Design or Typesetting), sales reports activate once published and live.\n5. ZERO HALLUCINATION POLICY: Never invent sales figures, dates, transaction reference numbers, or payment promises.\n\nAUTHOR DETAILS:\n- Name: {{ $json.author_name }}\n- Email: {{ $json.author_email }}\n- City: {{ $json.author_city }}\n\nFINANCIAL METRICS:\n- Total Lifetime Royalty Earned: ₹{{ $json.total_earned }}\n- Total Royalties Disbursed: ₹{{ $json.total_paid }}\n- Current Outstanding Balance: ₹{{ $json.total_pending }}\n- Payout Schedule Status: {{ $json.threshold_explanation }}\n\nREGISTERED CATALOG TITLES:\n{{ $json.books_formatted_list }}\n\nEMAIL STRUCTURE:\n1. Warm greeting addressing {{ $json.author_name }}.\n2. Acknowledgment of their partnership with BookLeaf Publishing.\n3. Book-by-book royalty and status breakdown.\n4. Consolidated balance sheet (Total Earned, Total Paid, and Outstanding Balance).\n5. Exact payout schedule explanation grounded in the 45-day quarterly cycle and ₹1,000 threshold.\n6. Warm and professional closing from the BookLeaf Author Relations Desk."
       },
-      "id": "5e7a4b89-5005-4005-8005-a1b2c3d4e5f6",
+      "id": "0781c048-24e0-4e0e-b96f-9a7d55c92a01",
       "name": "5. AI Email Generator",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.4,
-      "position": [880, 200]
+      "position": [
+        1040,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        64
+      ],
+      "id": "bad5cb1e-9268-4dfd-aed4-21a528e70237",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "T6m90hthCFv6Jxcc",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
     },
     {
       "parameters": {
@@ -79,13 +90,17 @@
         "responseBody": "={\n  \"status\": \"Success\",\n  \"generated_summary\": {{ JSON.stringify($json.text) }}\n}",
         "options": {}
       },
-      "id": "6e7a4b89-6006-4006-8006-a1b2c3d4e5f6",
-      "name": "Respond to Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.1,
-      "position": [1120, 200]
+      "typeVersion": 1.5,
+      "position": [
+        1408,
+        -144
+      ],
+      "id": "41ea2f5b-7fc5-4f60-b9f8-f0b86089d13f",
+      "name": "Respond to Webhook"
     }
   ],
+  "pinData": {},
   "connections": {
     "1. Webhook Receiver": {
       "main": [
@@ -106,7 +121,8 @@
             "type": "main",
             "index": 0
           }
-        ]
+        ],
+        []
       ]
     },
     "3. Format Data & Invariants": {
@@ -114,6 +130,17 @@
         [
           {
             "node": "5. AI Email Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. AI Email Generator": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
             "type": "main",
             "index": 0
           }
@@ -130,20 +157,19 @@
           }
         ]
       ]
-    },
-    "5. AI Email Generator": {
-      "main": [
-        [
-          {
-            "node": "Respond to Webhook",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
     }
   },
+  "active": true,
   "settings": {
-    "executionOrder": "v1"
-  }
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3bf254f6-3660-4986-998f-b9d68a241381",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a08e25ce9a38421be515d42d969af1f199bc7d30d06e0b20514d409bcf7a7b2a"
+  },
+  "nodeGroups": [],
+  "id": "tVOf9YtWJdu2tabj",
+  "tags": []
 }
