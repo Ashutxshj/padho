@@ -1,4 +1,4 @@
-# BookLeaf Publishing — Technical Assignment 2
+# Technical Assignment 2
 ## Author Royalty Dashboard & Automated Notification System
 ### Bubble.io + n8n Cloud + Google Gemini AI Integration
 
